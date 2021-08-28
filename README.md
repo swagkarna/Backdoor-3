@@ -1,7 +1,9 @@
 # Backdoor
 This is an advanced backdoor, created with Python
-As you can see, there are a lot of options in this backdoor:
-![Backdoor](https://user-images.githubusercontent.com/44588965/130431108-42fbe76b-a357-4bb9-adba-0c47671b4732.png)
+The backdoor contains a ton of options like:
+Download, uploading, add/remove to startup, enable/disable task manager
+launch + delete + read + edit files, screenshot, sysinfo, idle time
+send messages, show list of processes running, lock + shotdown system...
 
 The Spyware was desinged to work with the Backdoor, but with a few additions, like E-Mailing the data it can become a very powerfull Spyware.
 Curerntly it steals all the passwords saved in Chrome, and the system information: RAM, processor, system type, ip...
