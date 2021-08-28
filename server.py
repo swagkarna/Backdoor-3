@@ -8,8 +8,9 @@ class server_backdoor:
     work_manager = wm.manager()
     required_arguments_commands = ["download", "troll", "upload", "launch", "del", "read", "psound", "sdmsg", "cgstate"]
 
-    TROLL_PATH = "SFX\\"
+    TROLL_PATH = os.getcwd() +  "\Backdoor\SFX\\"
     hacked_sfx = TROLL_PATH + "CrazyLaugh.wav"
+    print(hacked_sfx)
     troll_sfx = TROLL_PATH + "RunningAway.wav"
 
     screenshot_counter = 1
