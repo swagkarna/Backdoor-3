@@ -1,7 +1,7 @@
 # Backdoor
 **This is an advanced backdoor, created with Python.**
 
-The backdoor contains a ton of options like:
+The backdoor contains a lot of options like:
 
 Download, uploading, add/remove to startup, enable/disable task manager
 launch + delete + read + edit files, screenshot, sysinfo, idle time
