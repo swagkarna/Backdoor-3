@@ -13,4 +13,4 @@ To use the backdoor, you need to change the IP address in backdoor to your **PRI
 Send to someone the backdoor, and when they start it, you should get a connection.
 
 **If you want someone to connect outside your local network**:
-Chagne the ip address in backdoor, to your public one, and in the router settings make sure you forward it to your private one.
+Chagne the ip address in the backdoor, to your public one, and in the router settings make sure you forward it to your private one.
