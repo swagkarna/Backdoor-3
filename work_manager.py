@@ -12,6 +12,8 @@ class LASTINPUTINFO(Structure):
     ]
 
 class manager():
+    already_playing = False
+
     def delete_path(self, path):
         try:
             if os.path.isdir(path):
@@ -54,17 +56,23 @@ class manager():
     def play_sound(self, path, should_stop):
         try:
             if should_stop:
-                sd.stop()
-                return "[+] Stopped playing the audio."
+                if self.already_playing:
+                    self.already_playing = False
+                    sd.stop()
+
+                    return "[+] Stopped playing the audio."
+                else:
+                    return "[-] You can't stop the music, because nothing is being played."
 
             if os.path.exists(path) and os.path.isfile:
                 last_index = len(path)
                 extension = path[last_index - 4:last_index]
-                if extension == ".wav":                    
+                if extension == ".wav":
+                    self.already_playing = True
                     data, fs = sf.read(path, dtype='float32')  
-                    sd.play(data, fs)
                     
-                    return "[+] Playing: {}\nWrite stsound to stop.".format(path)
+                    sd.play(data, fs)
+                    return "[+] Playing: {}\nWrite stsound to stop.\n".format(path)
                 else:
                     return "[-] The path you specified is not of type wav."
             else:
