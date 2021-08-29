@@ -9,7 +9,7 @@ This is an advanced backdoor, created with python.
 
   - Send messages.
 
-  - Get a Snap from the webcam / Screenshot.
+  - Get a Snap from the Webcam / Screenshot.
 
   - Get UserID + Processes running.
 
@@ -22,6 +22,11 @@ This is an advanced backdoor, created with python.
   - Lock / Restart / Shutdown the System.
 
   - Trolling the user by playing music + showing messages.
+
+---
+
+## SFX Folder
+This folder contains sfx's that are used **Only when activating trolling option**, if you don't plan to use it, you can delete the folder.
 
 ---
 
