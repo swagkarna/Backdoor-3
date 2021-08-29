@@ -33,7 +33,7 @@ This folder contains sfx's that are used **Only when activating trolling option*
 ## Spyware
 The spyware get's all the **Passwords Saved in Chrome** and the system details like: RAM, Processor, Type of machine, Public-IP, and using the report method
 it returns all of this data.
-With a little bit of knowledge you can make the spyware to send this data via EMAIL, and because this spyware is undetectable, you can find out a lot of Information about someone with this script. (Don't do that if the person doesn't know, because... ILLEGAL => [Hacking Crimes](https://en.wikipedia.org/wiki/List_of_computer_criminals)).
+With a little bit of knowledge you can make the spyware to send this data via EMAIL, and because this spyware is undetectable, you can find out a lot of Information about someone with this script. (Don't do that if the person doesn't know, because... ILLEGAL => [Hacking Crimes](https://www.pandasecurity.com/en/mediacenter/panda-security/types-of-cybercrime/)).
 
 ![image](https://user-images.githubusercontent.com/44588965/131255946-0ae5dfea-592f-43f5-a383-fafd5938ecf8.png)
 
