@@ -9,11 +9,15 @@ The backdoor contains the following options:
 
   • Send messages.
 
-  • Get a Snap from the webcam / Screenshot.
+  #• Get a Snap from the webcam / Screenshot.
 
-  • Get UserID + Processes running.
+  ##• Get UserID + Processes running.
 
-  • Adding / Removing to Startup.
+  ###• Adding / Removing to Startup.
+
+'''
+test
+'''
 
   • Get user information: **Chrome Saved Passwords, System Specs, Public-IP**. 
 
