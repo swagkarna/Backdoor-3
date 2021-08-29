@@ -52,7 +52,7 @@ class manager():
                 return "[-] The path you specified is not valid."
         except Exception as e:            
             return "[-] Couldn't read: {}'s content: {}.".format(path, e)
-    
+
     def play_sound(self, path, should_stop):
         try:
             if should_stop:
