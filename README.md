@@ -26,11 +26,19 @@
 ---
 
 ## Spyware
-The spyware was desinged to work with the Backdoor, but with a few additions that you can do like E-Mailing the data it can become a very powerfull spyware.
-Curerntly it steals all the passwords saved on Chrome, and the system information: RAM, processor, system type, public ip...
+The spyware get's all the **Passwords Saved in Chrome** and the system details like: RAM, Processor, Type of machine, Public-IP, and using the report method
+it returns all of this data.
+With a little bit of knowledge you can make the spyware to send this data via EMAIL, and because this spyware is undetectable, you can find out a lot of Information about someone with this script. (Don't do that if the person doesn't know, ILLEGAL).
+![image](https://user-images.githubusercontent.com/44588965/131255946-0ae5dfea-592f-43f5-a383-fafd5938ecf8.png)
 
-To use the backdoor, you need to change the IP address in backdoor to your **PRIVATE IP** and in server to your **PRIVATE IP** address, and then start server and wait for connection.
-Send to someone the backdoor, and when they start it, you should get a connection.
+---
 
-**If you want someone to connect outside your local network**:
-Chagne the ip address in the backdoor, to your public one, and in the router settings make sure you forward it to your private one.
+## Usage
+To use the backdoor, first go to the server.py script, and change the IP given to your **Private-IP** and you are good to go. Now you have a couple of options:
+
+1) If the person you want to open this backdoor is within your local network the put your **Private-IP** in backdoor.py.
+2) If they are outside your local network, you need to put your **Public-IP**.
+3) The ports given in server.py and backdoor.py should match.
+4) If you want to you can convert this backdoor to be executable using pyinstaller.
+
+Send to someone the backdoor, when they launch it, you should get a connection.
