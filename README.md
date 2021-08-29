@@ -23,6 +23,7 @@ The backdoor contains the following options:
 
 • Trolling the user by playing music + showing messages.
 
+
 The spyware was desinged to work with the Backdoor, but with a few additions that you can do like E-Mailing the data it can become a very powerfull spyware.
 Curerntly it steals all the passwords saved on Chrome, and the system information: RAM, processor, system type, public ip...
 
