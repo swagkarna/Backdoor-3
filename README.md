@@ -3,25 +3,26 @@
 
 The backdoor contains the following options:
 
-• Downloading / Uploading files.
+  • Downloading / Uploading files.
 
-• Launching / Deleting / Reading file's content.
+  • Launching / Deleting / Reading file's content.
 
-• Send messages.
+  • Send messages.
 
-• Get a Snap from the webcam / Screenshot.
+  • Get a Snap from the webcam / Screenshot.
 
-• Get UserID + Processes running.
+  • Get UserID + Processes running.
 
-• Adding / Removing to Startup.
+  • Adding / Removing to Startup.
 
-• Get user information: **Chrome Saved Passwords, System Specs, Public-IP**. 
+  • Get user information: **Chrome Saved Passwords, System Specs, Public-IP**. 
 
-• Disable / Enable Task Manager.
+  • Disable / Enable Task Manager.
 
-• Lock / Restart / Shutdown the System.
+  • Lock / Restart / Shutdown the System.
 
-• Trolling the user by playing music + showing messages.
+  • Trolling the user by playing music + showing messages.
+
 
 
 The spyware was desinged to work with the Backdoor, but with a few additions that you can do like E-Mailing the data it can become a very powerfull spyware.
