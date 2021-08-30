@@ -14,7 +14,7 @@ I examined the backdoor in my Youtube channel, if you need any help go watch the
 
   - Get UserID + Processes running.
 
-  - Adding / Removing to Startup.
+  - Removing / Adding to Startup.
 
   - Get user information: **Chrome Saved Passwords, System Specs, Public-IP**. 
 
