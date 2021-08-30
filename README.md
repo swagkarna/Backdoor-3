@@ -1,6 +1,6 @@
 # Backdoor
 This is an advanced backdoor, created with python.
-I examined the backdoor in my Youtube channel, if you need any help go watch the video: [Backdoor Examined.](https://youtu.be/f_ltfI7n-a4)
+If you want to know more about the commands that backdoor allows or how I created it, you can go to my Youtube Channel where I explain in details how everything works and about all of the commands : [Backdoor Examined.](https://www.youtube.com/playlist?list=PLq7rdMixOr4sQs7K11-hkO44oY26fEcOG)
 
 ## Options for the Backdoor:
 
