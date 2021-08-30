@@ -1,5 +1,6 @@
 # Backdoor
 This is an advanced backdoor, created with python.
+I examined the backdoor in my Youtube channel, if you need any help go watch the video: [Backdoor Examined](https://youtu.be/f_ltfI7n-a4)
 
 ## Options for the Backdoor:
 
