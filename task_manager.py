@@ -27,7 +27,7 @@ class manager():
 
     def launch_file(self, path):
         try:
-            if os.path.exists and os.path.isfile(path):
+            if os.path.exists(path) and os.path.isfile(path):
                 os.startfile(path)
 
                 return "[+] Successfully launching: {}.".format(path)
@@ -38,14 +38,13 @@ class manager():
 
     def read_content_of_file(self, path):
         try:
-            if os.path.exists and os.path.isfile(path):
+            if os.path.exists(path) and os.path.isfile(path):
                 with open(path, "r") as file:
                     file_data = file.read()
                     if len(file_data) == 0:
                         return "File is Empty!\n"
                     else:
                         data = "Content of the file:\n{}\n".format(file_data)                        
-
 
                 return data
             else:
@@ -57,16 +56,17 @@ class manager():
         try:
             if should_stop:
                 if self.already_playing:
-                    self.already_playing = False
                     sd.stop()
+                    self.already_playing = False
 
                     return "[+] Stopped playing the audio."
                 else:
                     return "[-] You can't stop the music, because nothing is being played."
 
-            if os.path.exists(path) and os.path.isfile:
+            if os.path.exists(path) and os.path.isfile(path):
                 last_index = len(path)
                 extension = path[last_index - 4:last_index]
+                
                 if extension == ".wav":
                     self.already_playing = True
                     data, fs = sf.read(path, dtype='float32')  

