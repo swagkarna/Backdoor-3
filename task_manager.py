@@ -94,10 +94,10 @@ class manager():
 
     def get_idle_duration(self):
         try:
-            lastInputInfo = LASTINPUTINFO()
-            lastInputInfo.cbSize = sizeof(lastInputInfo)
-            windll.user32.GetLastInputInfo(byref(lastInputInfo))
-            millis = windll.kernel32.GetTickCount() - lastInputInfo.dwTime
+            last_input_info = LASTINPUTINFO()
+            last_input_info.cbSize = sizeof(last_input_info)
+            windll.user32.GetLastInputInfo(byref(last_input_info))
+            millis = windll.kernel32.GetTickCount() - last_input_info.dwTime
 
             return "Idle time: {}".format(millis / 1000.0)
         except Exception as e:

