@@ -1,5 +1,5 @@
 # Backdoor
-This is an advanced backdoor, created with python.
+This is a Backdoor, created with Python 3.
 
 ## Types of Commands:
 
