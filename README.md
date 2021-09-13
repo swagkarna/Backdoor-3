@@ -55,4 +55,4 @@ Start server.py and wait for the victim to open backdoor.py, when they launch it
 ## Outside Local Netork
 To make sure that everything works, you will need to add one more setting.
 In order to allow people outside you local network to connect to you, you need to enable IP-Forwarding in your router settings and forward your Public-IP to your Private-IP.
-[See more data about IP Forwarding.](https://en.wikipedia.org/wiki/IP_routing)
+[More about IP Forwarding.](https://en.wikipedia.org/wiki/IP_routing)
